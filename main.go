@@ -25,7 +25,7 @@ func setBlock(c *gin.Context){
 
 
 func main()  {
-	log.Println("hello gethinx")
+	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
 	router := gin.Default()
 	router.Use(middle.RequestLogger())
 	router.Use(middle.ResponseLogger)

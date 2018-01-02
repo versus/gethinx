@@ -25,8 +25,8 @@ func reverseProxy(c *gin.Context) {
 	rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
 	c.Request.Body = rdr2
 
-	_ = lib.H2I("0xe6")
-	_ = lib.I2H(230)
+	//_ = lib.H2I("0xe6")
+	//_ = lib.I2H(230)
 
 	target := "http://127.0.0.1:8080"
 	url, err := url.Parse(target)
@@ -40,10 +40,13 @@ func reverseProxy(c *gin.Context) {
 		log.Println("Error unmarshal  %s", err.Error())
 	}
 
-
 	log.Println(req.Method)
 	if req.Method == "eth_getBlockByNumber" {
-		log.Println(string(req.Params[0]))
+		block,err := lib.H2I(lib.TrimQuote(string(req.Params[0])))
+		if err != nil {
+			log.Println("Error unhex block number  %s", err.Error())
+		}
+		log.Println("Number  ", block)
 	}
 
 

@@ -3,46 +3,26 @@ package main
 import (
 	"log"
 	"github.com/gin-gonic/gin"
-	"net/http/httputil"
-	"net/url"
-	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
-	"github.com/versus/gethinx/rpc"
-	"encoding/json"
+	"strconv"
+	"sync/atomic"
 )
 
-var (
-	numBlocks int64 = 3644
-)
+var numBlocks int64 = 3644
 
 
-
-
-func reverseProxy() gin.HandlerFunc {
-	_ = lib.H2I("0xe6")
-	_ = lib.I2H(230)
-
-	return func(c *gin.Context) {
-		target := "http://127.0.0.1:8080"
-		url, err := url.Parse(target)
-		if err != nil {
-			log.Print("Error parse target %s", err.Error())
-		}
-
-        var req rpc.JsonRpcMessage
-		js := `{"jsonrpc":"2.0","id":6,"method":"eth_getBlockByNumber","params":["0xe3c",false]}`
-		bytes := []byte(js)
-		err = json.Unmarshal(bytes,&req)
-		if err != nil {
-			log.Println("Error unmarshal  %s", err.Error())
-		}
-		log.Println(req.Method)
-		log.Println(string(req.Params[0]))
-
-		proxy := httputil.NewSingleHostReverseProxy(url)
-		proxy.ServeHTTP(c.Writer, c.Request)
+func setBlock(c *gin.Context){
+	newBlocks,err := strconv.ParseInt(c.PostForm("block"), 0, 64)
+	atomic.StoreInt64(&numBlocks,newBlocks)
+	if err != nil {
+		log.Println("Error parse post block  %s", err.Error())
 	}
-}
+	c.JSON(200, gin.H{
+			"blocks": atomic.LoadInt64(&numBlocks),
+		})
+	}
+
+
 
 func main()  {
 	log.Println("hello gethinx")
@@ -54,7 +34,9 @@ func main()  {
 			"message": "pong",
 		})
 	})
-	router.POST("/", reverseProxy())
+	router.POST("/block", setBlock)
+	router.POST("/", reverseProxy)
+	router.GET("/status", getStatus)
 	router.Run(":8545")
 }
 

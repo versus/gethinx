@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"bytes"
 	"log"
-	"io"
+	"github.com/versus/gethinx/lib"
 )
 
 func RequestLogger() gin.HandlerFunc {
@@ -13,15 +13,10 @@ func RequestLogger() gin.HandlerFunc {
 		buf, _ := ioutil.ReadAll(c.Request.Body)
 		rdr1 := ioutil.NopCloser(bytes.NewBuffer(buf))
 		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf)) //We have to create a new Buffer, because rdr1 will be read.
-		log.Println(readBody(rdr1)) // Print request body
+		log.Println("Req: ",lib.ReadBody(rdr1)) // Print request body
 		c.Request.Body = rdr2
 		c.Next()
 	}
 }
 
-func readBody(reader io.Reader) string {
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(reader)
-	s := buf.String()
-	return s
-}
+

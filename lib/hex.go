@@ -5,6 +5,9 @@ import(
 	"fmt"
 )
 
+//_ = lib.H2I("0xe6")
+//_ = lib.I2H(230)
+
 func H2I(hex string)  (int64, error) {
 	d, err := strconv.ParseInt(hex, 0, 64)
 	return d, err

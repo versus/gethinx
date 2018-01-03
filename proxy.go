@@ -10,6 +10,13 @@ import (
 	"encoding/json"
 )
 
+func getUrl(req lib.MyRequestBody) (*url.URL, error){
+	_ = req.Body
+	target := "http://127.0.0.1:8080"
+	url, err := url.Parse(target)
+	return url, err
+}
+
 func reverseProxy(c *gin.Context) {
 
 	var req rpc.JsonRpcMessage
@@ -27,22 +34,22 @@ func reverseProxy(c *gin.Context) {
 	if req.Method == "eth_getBlockByNumber" {
 		hexblock,err := req.GetStringParams(0)
 		if err != nil {
-			log.Println("Error get Params  %s", err.Error())
+			log.Println("Error get Params ", err.Error())
 		}
 		block,err := lib.H2I(hexblock)
 		if err != nil {
-			log.Println("Error unhex block number  %s", err.Error())
+			log.Println("Error unhex block number ", err.Error())
 		}
 		log.Println("Number  ", block)
 	}
 
-	target := "http://127.0.0.1:8080"
-	url, err := url.Parse(target)
-	if err != nil {
-		log.Print("Error parse target %s", err.Error())
-	}
 
+	url, err := getUrl(myreq)
+	if err != nil {
+		log.Fatal("Error get URL for ReverseProxy  ", err.Error())
+	}
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ServeHTTP(c.Writer, c.Request)
 
 	}
+

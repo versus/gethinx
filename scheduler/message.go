@@ -1,4 +1,4 @@
-package rpc
+package scheduler
 
 import (
 	"encoding/json"

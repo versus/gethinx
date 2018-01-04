@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"net/http/httputil"
 	"log"
-	"github.com/versus/gethinx/rpc"
 	"encoding/json"
+	"github.com/versus/gethinx/scheduler"
 )
 
 func getUrl(req lib.MyRequestBody) (*url.URL, error){
@@ -19,7 +19,7 @@ func getUrl(req lib.MyRequestBody) (*url.URL, error){
 
 func reverseProxy(c *gin.Context) {
 
-	var req rpc.JsonRpcMessage
+	var req scheduler.JsonRpcMessage
 
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request

@@ -6,9 +6,11 @@ import (
 	"github.com/versus/gethinx/middle"
 	"strconv"
 	"sync/atomic"
+	"github.com/versus/gethinx/scheduler"
 )
 
 var numBlocks int64 = 3644
+var target *scheduler.Upstream
 
 
 func setBlock(c *gin.Context){
@@ -26,6 +28,10 @@ func setBlock(c *gin.Context){
 
 func main()  {
 	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
+
+	target = scheduler.NewUpstream("http://127.0.0.1","8080","1")
+	log.Println("target state is ", target.FSM.Current())
+
 	router := gin.Default()
 	router.Use(middle.RequestLogger())
 	router.Use(middle.ResponseLogger)

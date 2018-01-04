@@ -2,17 +2,18 @@ package scheduler
 
 import (
 	"bytes"
-	"github.com/looplab/fsm"
-	"github.com/versus/gethinx/lib"
 	"log"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/looplab/fsm"
+	"github.com/versus/gethinx/lib"
 )
 
 type Upstream struct {
 	Host         string
-	Url          *url.URL
+	Target       string
 	Port         uint16
 	HexLastBlock string
 	LastBlock    int64
@@ -43,16 +44,16 @@ func NewUpstream(host string, port string, weight string) *Upstream {
 	target.WriteString(":")
 	target.WriteString(port)
 
-	url, err := url.Parse(host)
+	_, err = url.Parse(target.String())
 	if err != nil {
 		log.Fatalln("Can't get url from ", target, err.Error())
 	}
 
 	upstream := &Upstream{
 		Host:   host,
+		Target: target.String(),
 		Port:   uint16(uintPort),
 		Weight: uint8(uintWeight),
-		Url:    url,
 	}
 
 	upstream.FSM = fsm.NewFSM(
@@ -89,9 +90,10 @@ func (u *Upstream) UpdateLastBlock(host string, hexLastBlock string) error {
 	return err
 }
 
-func getUrl(req lib.MyRequestBody) (*url.URL, error) {
-	_ = req.Body
-	target := "http://127.0.0.1:8080"
-	url, err := url.Parse(target)
+func (u *Upstream) GetURL() (*url.URL, error) {
+	url, err := url.Parse(u.Target)
+	if err != nil {
+		log.Fatalln("Can't get url from ", u.Target, err.Error())
+	}
 	return url, err
 }

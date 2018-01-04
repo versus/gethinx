@@ -2,20 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"log"
+	"net/http/httputil"
+
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/scheduler"
-	"log"
-	"net/http/httputil"
-	"net/url"
 )
-
-func getUrl(req lib.MyRequestBody) (*url.URL, error) {
-	_ = req.Body
-	target := "http://127.0.0.1:8080"
-	url, err := url.Parse(target)
-	return url, err
-}
 
 func reverseProxy(c *gin.Context) {
 
@@ -25,9 +18,8 @@ func reverseProxy(c *gin.Context) {
 	c.Request.Body = myreq.Request
 
 	bytes := []byte(myreq.Body)
-	err := json.Unmarshal(bytes, &req)
-	if err != nil {
-		log.Println("Error unmarshal  %s", err.Error())
+	if err := json.Unmarshal(bytes, &req); err != nil {
+		log.Println("Error unmarshal ", err.Error())
 	}
 
 	log.Println(req.Method)
@@ -43,7 +35,7 @@ func reverseProxy(c *gin.Context) {
 		log.Println("Number  ", block)
 	}
 
-	url, err := getUrl(myreq)
+	url, err := target.GetURL()
 	if err != nil {
 		log.Fatal("Error get URL for ReverseProxy  ", err.Error())
 	}

@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/versus/gethinx/middle"
-	"github.com/versus/gethinx/scheduler"
 	"log"
 	"strconv"
 	"sync/atomic"
+
+	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx/middle"
+	"github.com/versus/gethinx/scheduler"
 )
 
 var numBlocks int64 = 3644
@@ -16,7 +17,7 @@ func setBlock(c *gin.Context) {
 	newBlocks, err := strconv.ParseInt(c.PostForm("block"), 0, 64)
 	atomic.StoreInt64(&numBlocks, newBlocks)
 	if err != nil {
-		log.Println("Error parse post block  %s", err.Error())
+		log.Println("Error parse post block  ", err.Error())
 	}
 	c.JSON(200, gin.H{
 		"blocks": atomic.LoadInt64(&numBlocks),
@@ -40,5 +41,8 @@ func main() {
 	router.POST("/block", setBlock)
 	router.POST("/", reverseProxy)
 	router.GET("/status", getStatus)
-	router.Run(":8545")
+	err := router.Run(":8545")
+	if err != nil {
+		log.Println("Error run gin router: ", err.Error())
+	}
 }

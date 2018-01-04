@@ -1,35 +1,32 @@
 package main
 
 import (
-	"log"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
+	"github.com/versus/gethinx/scheduler"
+	"log"
 	"strconv"
 	"sync/atomic"
-	"github.com/versus/gethinx/scheduler"
 )
 
 var numBlocks int64 = 3644
 var target *scheduler.Upstream
 
-
-func setBlock(c *gin.Context){
-	newBlocks,err := strconv.ParseInt(c.PostForm("block"), 0, 64)
-	atomic.StoreInt64(&numBlocks,newBlocks)
+func setBlock(c *gin.Context) {
+	newBlocks, err := strconv.ParseInt(c.PostForm("block"), 0, 64)
+	atomic.StoreInt64(&numBlocks, newBlocks)
 	if err != nil {
 		log.Println("Error parse post block  %s", err.Error())
 	}
 	c.JSON(200, gin.H{
-			"blocks": atomic.LoadInt64(&numBlocks),
-		})
-	}
+		"blocks": atomic.LoadInt64(&numBlocks),
+	})
+}
 
-
-
-func main()  {
+func main() {
 	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
 
-	target = scheduler.NewUpstream("http://127.0.0.1","8080","1")
+	target = scheduler.NewUpstream("http://127.0.0.1", "8080", "1")
 	log.Println("target state is ", target.FSM.Current())
 
 	router := gin.Default()
@@ -45,4 +42,3 @@ func main()  {
 	router.GET("/status", getStatus)
 	router.Run(":8545")
 }
-

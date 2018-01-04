@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-func getStatus(c *gin.Context){
+func getStatus(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": atomic.LoadInt64(&numBlocks),
 	})

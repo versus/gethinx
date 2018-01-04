@@ -1,8 +1,8 @@
 package middle
 
 import (
-	"github.com/gin-gonic/gin"
 	"bytes"
+	"github.com/gin-gonic/gin"
 	"log"
 )
 
@@ -23,4 +23,3 @@ func ResponseLogger(c *gin.Context) {
 	statusCode := c.Writer.Status()
 	log.Println("Response: ", statusCode, blw.body.String())
 }
-

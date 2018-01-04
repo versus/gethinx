@@ -8,18 +8,18 @@ import (
 )
 
 type MyRequestBody struct {
-	Body string
+	Body    string
 	Request io.ReadCloser
 }
 
-func ReadRequestBody(reader io.Reader) (MyRequestBody)  {
+func ReadRequestBody(reader io.Reader) MyRequestBody {
 	buf, err := ioutil.ReadAll(reader)
 	if err != nil {
 		log.Fatal("Error parse c.Request.Body  %s", err.Error())
 	}
 	buf2 := new(bytes.Buffer)
 	buf2.ReadFrom(ioutil.NopCloser(bytes.NewBuffer(buf)))
-	return MyRequestBody{buf2.String(),ioutil.NopCloser(bytes.NewBuffer(buf))}
+	return MyRequestBody{buf2.String(), ioutil.NopCloser(bytes.NewBuffer(buf))}
 }
 
 func TrimQuote(s string) string {

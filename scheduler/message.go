@@ -2,18 +2,18 @@ package scheduler
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/versus/gethinx/lib"
 	"reflect"
-	"errors"
 )
 
 type JsonRpcMessage struct {
-	Version string          `json:"jsonrpc"`
-	ID      int 		`json:"id,omitempty"`
-	Method  string          `json:"method,omitempty"`
+	Version string            `json:"jsonrpc"`
+	ID      int               `json:"id,omitempty"`
+	Method  string            `json:"method,omitempty"`
 	Params  []json.RawMessage `json:"params,omitempty"`
-	Error   *jsonError      `json:"error,omitempty"`
-	Result  json.RawMessage `json:"result,omitempty"`
+	Error   *jsonError        `json:"error,omitempty"`
+	Result  json.RawMessage   `json:"result,omitempty"`
 }
 
 type jsonError struct {
@@ -22,7 +22,7 @@ type jsonError struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func (req JsonRpcMessage) GetStringParams(index int) (string,error) {
+func (req JsonRpcMessage) GetStringParams(index int) (string, error) {
 	var ret string
 	var err error
 	if index < len(req.Params) {
@@ -36,4 +36,3 @@ func (req JsonRpcMessage) GetStringParams(index int) (string,error) {
 	}
 	return ret, err
 }
-

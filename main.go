@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
@@ -26,6 +27,12 @@ func setBlock(c *gin.Context) {
 
 func main() {
 	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
+
+	var conf scheduler.Config
+	if _, err := toml.DecodeFile("./config.toml", &conf); err != nil {
+		log.Fatalln("Error parse config.toml", err.Error())
+	}
+	log.Println("Toml cats: ", conf.Cats)
 
 	target = scheduler.NewUpstream("127.0.0.1", "8080", "1")
 	log.Println("target state is ", target.FSM.Current())

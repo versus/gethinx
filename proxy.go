@@ -12,7 +12,7 @@ import (
 
 func reverseProxy(c *gin.Context) {
 
-	var req scheduler.JsonRpcMessage
+	var req scheduler.JSONRPCMessage
 
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request

@@ -11,19 +11,21 @@ import (
 	"github.com/versus/gethinx/lib"
 )
 
+// Upstream is host for reverseproxy request from ethclients
 type Upstream struct {
-	Host         string
-	Target       string
 	Port         uint16
-	HexLastBlock string
 	LastBlock    int64
 	TimeUpdate   int64
 	Weight       uint8
 	Backup       bool
+	Host         string
+	Target       string
+	HexLastBlock string
 	State        string
 	FSM          *fsm.FSM
 }
 
+// NewUpstream is constructor for Upstream
 func NewUpstream(host string, port string, weight string) *Upstream {
 
 	uintPort, err := strconv.ParseUint(port, 10, 16)
@@ -40,9 +42,15 @@ func NewUpstream(host string, port string, weight string) *Upstream {
 	}
 
 	target := bytes.NewBufferString("http://")
-	target.WriteString(host)
-	target.WriteString(":")
-	target.WriteString(port)
+	if _, err = target.WriteString(host); err != nil {
+		log.Fatalln("Error in construction target ", err.Error())
+	}
+	if _, err = target.WriteString(":"); err != nil {
+		log.Fatalln("Error in construction target ", err.Error())
+	}
+	if _, err = target.WriteString(port); err != nil {
+		log.Fatalln("Error in construction target ", err.Error())
+	}
 
 	_, err = url.Parse(target.String())
 	if err != nil {
@@ -74,9 +82,9 @@ func (u *Upstream) enterState(event *fsm.Event) {
 	log.Printf("The upstream to %s is %s\n", u.State, event.Dst)
 }
 
-func (u *Upstream) UpdateLastBlock(host string, hexLastBlock string) error {
+// UpdateLastBlock function for update some fileds in Upstrea: LastBlock value, TimeUpdate value and state to UP
+func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 	var err error
-	u.Host = host
 	u.LastBlock, err = lib.H2I(hexLastBlock)
 	if err != nil {
 		log.Fatalln("Error convert block to int", err.Error())
@@ -85,11 +93,14 @@ func (u *Upstream) UpdateLastBlock(host string, hexLastBlock string) error {
 	u.HexLastBlock = hexLastBlock
 	u.TimeUpdate = time.Now().Unix()
 	if u.FSM.Current() == "down" {
-		u.FSM.Event("up")
+		if err = u.FSM.Event("up"); err != nil {
+			log.Fatalln("error change  state FSM to  UP: ", err.Error())
+		}
 	}
 	return err
 }
 
+// GetURL return url.URL from target filed shema://host:port
 func (u *Upstream) GetURL() (*url.URL, error) {
 	url, err := url.Parse(u.Target)
 	if err != nil {

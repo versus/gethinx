@@ -3,11 +3,13 @@ package scheduler
 import (
 	"encoding/json"
 	"errors"
-	"github.com/versus/gethinx/lib"
 	"reflect"
+
+	"github.com/versus/gethinx/lib"
 )
 
-type JsonRpcMessage struct {
+// JSONRPCMessage structure for mapping request from ethclient
+type JSONRPCMessage struct {
 	Version string            `json:"jsonrpc"`
 	ID      int               `json:"id,omitempty"`
 	Method  string            `json:"method,omitempty"`
@@ -22,7 +24,8 @@ type jsonError struct {
 	Data    interface{} `json:"data,omitempty"`
 }
 
-func (req JsonRpcMessage) GetStringParams(index int) (string, error) {
+// GetStringParams return index string from params field of request
+func (req JSONRPCMessage) GetStringParams(index int) (string, error) {
 	var ret string
 	var err error
 	if index < len(req.Params) {

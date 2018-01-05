@@ -1,5 +1,16 @@
-Age = 25
+#Age = 25
 Cats = [ "Cauchy", "Plato" ]
 Pi = 3.14
 Perfection = [ 6, 28, 496, 8128 ]
 DOB = 1987-07-05T05:45:00Z
+
+[servers]
+
+  # You can indent as you please. Tabs or spaces. TOML don't care.
+  [servers.alpha]
+  ip = "127.0.0.1"
+  port = "8181"
+
+  [servers.beta]
+  ip = "127.0.0.1"
+  port = "8080"

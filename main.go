@@ -7,11 +7,15 @@ import (
 
 	"flag"
 
+	"fmt"
+
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
 )
+
+const gethinxVersion = "0.0.1"
 
 var numBlocks int64 = 3644
 var target *scheduler.Upstream
@@ -29,15 +33,19 @@ func setBlock(c *gin.Context) {
 
 func main() {
 	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
+	flagPort := flag.String("p", "8545", "port: number for inet port")
 	flag.Parse()
 
-	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
+	log.Println("gethinx ", gethinxVersion, " (c)2018 Valentyn Nastenko")
 
 	var conf scheduler.Config
 	if _, err := toml.DecodeFile(*flagConfigFile, &conf); err != nil {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
-	log.Println("Toml cats: ", conf.Cats)
+
+	log.Println("Toml Age: ", conf.Age)
+
+	addr := fmt.Sprintf(":%s", *flagPort)
 
 	target = scheduler.NewUpstream("127.0.0.1", "8080", "1")
 	log.Println("target state is ", target.FSM.Current())
@@ -53,7 +61,7 @@ func main() {
 	router.POST("/block", setBlock)
 	router.POST("/", reverseProxy)
 	router.GET("/status", getStatus)
-	err := router.Run(":8545")
+	err := router.Run(addr)
 	if err != nil {
 		log.Println("Error run gin router: ", err.Error())
 	}

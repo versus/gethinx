@@ -5,6 +5,8 @@ import (
 	"strconv"
 	"sync/atomic"
 
+	"flag"
+
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
@@ -26,10 +28,13 @@ func setBlock(c *gin.Context) {
 }
 
 func main() {
+	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
+	flag.Parse()
+
 	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
 
 	var conf scheduler.Config
-	if _, err := toml.DecodeFile("./config.toml", &conf); err != nil {
+	if _, err := toml.DecodeFile(*flagConfigFile, &conf); err != nil {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 	log.Println("Toml cats: ", conf.Cats)

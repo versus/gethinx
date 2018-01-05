@@ -8,4 +8,11 @@ type Config struct {
 	Pi         float64
 	Perfection []int
 	DOB        time.Time // requires `import time`
+	Servers    map[string]server
+}
+
+type server struct {
+	IP     string
+	Port   string
+	Backup bool
 }

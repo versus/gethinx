@@ -27,7 +27,7 @@ func setBlock(c *gin.Context) {
 func main() {
 	log.Println("gethinx v0.0.1 (c)2018 Valentyn Nastenko")
 
-	target = scheduler.NewUpstream("http://127.0.0.1", "8080", "1")
+	target = scheduler.NewUpstream("127.0.0.1", "8080", "1")
 	log.Println("target state is ", target.FSM.Current())
 
 	router := gin.Default()

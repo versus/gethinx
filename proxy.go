@@ -35,6 +35,7 @@ func reverseProxy(c *gin.Context) {
 		log.Println("Number  ", block)
 	}
 
+	log.Println("Target host: ", target.Target)
 	url, err := target.GetURL()
 	if err != nil {
 		log.Fatal("Error get URL for ReverseProxy  ", err.Error())

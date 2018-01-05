@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
 	"github.com/looplab/fsm"
 	"github.com/versus/gethinx/lib"
 )
@@ -41,7 +43,12 @@ func NewUpstream(host string, port string, weight string) *Upstream {
 		uintWeight = 1
 	}
 
-	target := bytes.NewBufferString("http://")
+	target := bytes.NewBufferString("")
+	if !strings.Contains(host, "http://") {
+		if _, err = target.WriteString("http://"); err != nil {
+			log.Fatalln("Error in construction target ", err.Error())
+		}
+	}
 	if _, err = target.WriteString(host); err != nil {
 		log.Fatalln("Error in construction target ", err.Error())
 	}

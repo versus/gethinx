@@ -77,8 +77,10 @@ func NewUpstream(host string, port string, weight int) *Upstream {
 	upstream.FSM = fsm.NewFSM(
 		"down",
 		fsm.Events{
-			{Name: "up", Src: []string{"down"}, Dst: "active"},
-			{Name: "down", Src: []string{"active"}, Dst: "down"},
+			{Name: "up", Src: []string{"down", "backup"}, Dst: "active"},
+			{Name: "down", Src: []string{"active", "backup", "suspend"}, Dst: "down"},
+			{Name: "backup", Src: []string{"active", "suspend"}, Dst: "backup"},
+			{Name: "suspend", Src: []string{"active", "backup"}, Dst: "suspend"},
 		},
 		fsm.Callbacks{
 			"enter_state": func(e *fsm.Event) { upstream.enterState(e) },
@@ -103,6 +105,11 @@ func (u *Upstream) GetLastBlock(ctx context.Context) {
 	}
 
 	u.LastBlock = *header.Number
+	if u.FSM.Current() == "down" {
+		if err = u.FSM.Event("up"); err != nil {
+			log.Fatalln("error change  state FSM to  UP: ", err.Error())
+		}
+	}
 }
 
 func (u *Upstream) enterState(event *fsm.Event) {

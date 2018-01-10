@@ -90,7 +90,7 @@ func NewUpstream(host string, port string, weight int) *Upstream {
 	return upstream
 }
 
-func (u *Upstream) GetLastBlock(ctx context.Context) {
+func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 
 	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
 	log.Println("addr is ", addr)

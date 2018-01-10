@@ -50,9 +50,10 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
-	target = scheduler.NewUpstream(conf.Servers["alpha"].IP, conf.Servers["alpha"].Port, conf.Servers["alpha"].Weight)
-	target.GetLastBlock(ctx)
 
+	//TODO: вынести в инициализацию сервера бекенда
+	target = scheduler.NewUpstream(conf.Servers["alpha"].IP, conf.Servers["alpha"].Port, conf.Servers["alpha"].Weight)
+	target.GetTargetLastBlock(ctx)
 	log.Println("target state is ", target.FSM.Current())
 	log.Println("target last block ", target.LastBlock.String())
 

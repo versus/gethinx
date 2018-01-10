@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"log"
+	"math/big"
 	"strconv"
 )
 
@@ -11,9 +12,9 @@ import (
 //_ = lib.I2H(230)
 
 // H2I function return int64 number from hex string of number
-func H2I(hex string) (int64, error) {
+func H2I(hex string) (big.Int, error) {
 	d, err := strconv.ParseInt(hex, 0, 64)
-	return d, err
+	return *big.NewInt(d), err
 }
 
 // I2H function return hex string of int64 base number

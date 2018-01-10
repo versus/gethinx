@@ -4,10 +4,13 @@ import (
 	"log"
 	"strconv"
 	"sync/atomic"
+	"time"
 
 	"flag"
 
 	"fmt"
+
+	"context"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
@@ -33,8 +36,10 @@ func setBlock(c *gin.Context) {
 
 func main() {
 	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
-	flagPort := flag.String("p", "8545", "port: number for inet port")
 	flag.Parse()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	log.Println("gethinx ", gethinxVersion, " (c)2018 Valentyn Nastenko")
 
@@ -43,12 +48,13 @@ func main() {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 
-	log.Println("Toml Age: ", conf.Age)
+	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
-	addr := fmt.Sprintf(":%s", *flagPort)
+	target = scheduler.NewUpstream(conf.Servers["alpha"].IP, conf.Servers["alpha"].Port, conf.Servers["alpha"].Weight)
+	target.GetLastBlock(ctx)
 
-	target = scheduler.NewUpstream("127.0.0.1", "8080", "1")
 	log.Println("target state is ", target.FSM.Current())
+	log.Println("target last block ", target.LastBlock.String())
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())
@@ -58,7 +64,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	router.POST("/block", setBlock)
+	router.POST("/api/v1/newblock", setBlock)
 	router.POST("/", reverseProxy)
 	router.GET("/status", getStatus)
 	err := router.Run(addr)

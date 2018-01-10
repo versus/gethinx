@@ -9,6 +9,13 @@ import (
 
 	"strings"
 
+	"fmt"
+
+	"context"
+
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/looplab/fsm"
 	"github.com/versus/gethinx/lib"
 )
@@ -16,7 +23,7 @@ import (
 // Upstream is host for reverseproxy request from ethclients
 type Upstream struct {
 	Port         uint16
-	LastBlock    int64
+	LastBlock    big.Int
 	TimeUpdate   int64
 	Weight       uint8
 	Backup       bool
@@ -28,19 +35,15 @@ type Upstream struct {
 }
 
 // NewUpstream is constructor for Upstream
-func NewUpstream(host string, port string, weight string) *Upstream {
+func NewUpstream(host string, port string, weight int) *Upstream {
 
 	uintPort, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
 		log.Fatalln("Can't convert port to uint16", err.Error())
 	}
 
-	uintWeight, err := strconv.ParseUint(weight, 10, 8)
-	if err != nil {
-		log.Fatalln("Can't convert weight to uint8", err.Error())
-	}
-	if uintWeight == 0 {
-		uintWeight = 1
+	if weight == 0 {
+		weight = 1
 	}
 
 	target := bytes.NewBufferString("")
@@ -68,7 +71,7 @@ func NewUpstream(host string, port string, weight string) *Upstream {
 		Host:   host,
 		Target: target.String(),
 		Port:   uint16(uintPort),
-		Weight: uint8(uintWeight),
+		Weight: uint8(weight),
 	}
 
 	upstream.FSM = fsm.NewFSM(
@@ -83,6 +86,23 @@ func NewUpstream(host string, port string, weight string) *Upstream {
 	)
 
 	return upstream
+}
+
+func (u *Upstream) GetLastBlock(ctx context.Context) {
+
+	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
+	log.Println("addr is ", addr)
+	conn, err := ethclient.Dial(addr)
+	if err != nil {
+		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
+	}
+
+	header, err := conn.HeaderByNumber(ctx, nil)
+	if err != nil {
+		log.Fatalf("Failed get HeaderByNumber: %v", err)
+	}
+
+	u.LastBlock = *header.Number
 }
 
 func (u *Upstream) enterState(event *fsm.Event) {

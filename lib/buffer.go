@@ -15,7 +15,7 @@ type MyRequestBody struct {
 func ReadRequestBody(reader io.Reader) MyRequestBody {
 	buf, err := ioutil.ReadAll(reader)
 	if err != nil {
-		log.Fatal("Error parse c.Request.Body  %s", err.Error())
+		log.Fatal("Error parse c.Request.Body  ", err.Error())
 	}
 	buf2 := new(bytes.Buffer)
 	buf2.ReadFrom(ioutil.NopCloser(bytes.NewBuffer(buf)))

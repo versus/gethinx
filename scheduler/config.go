@@ -1,18 +1,16 @@
 package scheduler
 
-import "time"
-
+// Config is struct for config.toml file
 type Config struct {
-	Age        int
-	Cats       []string
-	Pi         float64
-	Perfection []int
-	DOB        time.Time // requires `import time`
-	Servers    map[string]server
+	Port int
+	Bind string
+
+	Servers map[string]server
 }
 
 type server struct {
 	IP     string
 	Port   string
+	Weight int
 	Backup bool
 }

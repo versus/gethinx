@@ -13,6 +13,7 @@ import (
 func reverseProxy(c *gin.Context) {
 
 	var req scheduler.JSONRPCMessage
+	var block int64
 
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request
@@ -40,9 +41,11 @@ func reverseProxy(c *gin.Context) {
 		if err != nil {
 			log.Println("Error get Params ", err.Error())
 		}
-		block, err := lib.H2I(hexblock)
-		if err != nil {
-			log.Println("Error unhex block number ", err.Error())
+		if hexblock != "latest" {
+			block, err = lib.H2I(hexblock)
+			if err != nil {
+				log.Println("Error unhex block number ", err.Error())
+			}
 		}
 		log.Println("Number  ", block)
 	}

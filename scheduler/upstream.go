@@ -13,8 +13,6 @@ import (
 
 	"context"
 
-	"math/big"
-
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/looplab/fsm"
 	"github.com/versus/gethinx/lib"
@@ -23,12 +21,12 @@ import (
 // Upstream is host for reverseproxy request from ethclients
 type Upstream struct {
 	Port         uint16
-	LastBlock    big.Int
 	TimeUpdate   int64
 	Weight       uint8
 	Backup       bool
 	Host         string
 	Target       string
+	LastBlock    int64
 	HexLastBlock string
 	State        string
 	FSM          *fsm.FSM
@@ -101,13 +99,31 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 
 	header, err := conn.HeaderByNumber(ctx, nil)
 	if err != nil {
-		log.Fatalf("Failed get HeaderByNumber: %v", err)
+		log.Println("Failed get HeaderByNumber: %v", err)
+		u.LastBlock = 0
+		if u.FSM.Current() == "up" {
+			if err = u.FSM.Event("suspend"); err != nil {
+				log.Fatalln("error change  state FSM to  Down: ", err.Error())
+
+			}
+		}
+		return
 	}
 
-	u.LastBlock = *header.Number
-	if u.FSM.Current() == "down" {
-		if err = u.FSM.Event("up"); err != nil {
-			log.Fatalln("error change  state FSM to  UP: ", err.Error())
+	bint := *header.Number
+	if bint.IsInt64() {
+		u.LastBlock = bint.Int64()
+		if u.FSM.Current() == "down" {
+			if err = u.FSM.Event("up"); err != nil {
+				log.Fatalln("error change  state FSM to  UP: ", err.Error())
+			}
+		}
+	} else {
+		u.LastBlock = 0
+		if u.FSM.Current() == "up" {
+			if err = u.FSM.Event("suspend"); err != nil {
+				log.Fatalln("error change  state FSM to  Down: ", err.Error())
+			}
 		}
 	}
 }
@@ -136,9 +152,9 @@ func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 
 // GetURL return url.URL from target filed shema://host:port
 func (u *Upstream) GetURL() (*url.URL, error) {
-	url, err := url.Parse(u.Target)
+	geturl, err := url.Parse(u.Target)
 	if err != nil {
 		log.Fatalln("Can't get url from ", u.Target, err.Error())
 	}
-	return url, err
+	return geturl, err
 }

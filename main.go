@@ -2,15 +2,15 @@ package main
 
 import (
 	"log"
-	"strconv"
 	"sync/atomic"
-	"time"
 
 	"flag"
 
 	"fmt"
 
 	"context"
+
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
@@ -20,42 +20,57 @@ import (
 
 const gethinxVersion = "0.0.1"
 
-var numBlocks int64 = 3644
-var target *scheduler.Upstream
+var (
+	numBlocks int64 = 3644
+	target    *scheduler.Upstream
+	conf      scheduler.Config
+	backends  map[string]scheduler.Upstream
+)
 
 func setBlock(c *gin.Context) {
-	newBlocks, err := strconv.ParseInt(c.PostForm("block"), 0, 64)
-	atomic.StoreInt64(&numBlocks, newBlocks)
-	if err != nil {
-		log.Println("Error parse post block  ", err.Error())
-	}
+	//TODO: распарсить последний блок и занести в мапу серверов бекенда
+	//TODO: произвести расчет нового среднего блока
+	//TODO: проблема доверия к агенту!!!
 	c.JSON(200, gin.H{
 		"blocks": atomic.LoadInt64(&numBlocks),
 	})
 }
 
+func initBackendServers() {
+	if len(conf.Servers) == 0 {
+		log.Fatalln("Servers for backend is not defined")
+	}
+	backends = make(map[string]scheduler.Upstream, len(conf.Servers))
+	for srvKey, srvValue := range conf.Servers {
+		backends[srvKey] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight)
+		log.Println("add server ", srvKey, " with ", backends[srvKey].Target)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		target := backends[srvKey]
+		target.GetTargetLastBlock(ctx)
+		log.Println("target ", target.Target, " state is ", target.FSM.Current())
+		log.Println("target ", target.Target, "last block ", target.LastBlock)
+	}
+}
+
 func main() {
+	//TODO: create flag to reload config only
+	//TODO: флаг работы без агента (замедление работы с новыми блоками!!!!)
+	//TODO: create socket for client command
 	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
 	flag.Parse()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
 	log.Println("gethinx ", gethinxVersion, " (c)2018 Valentyn Nastenko")
 
-	var conf scheduler.Config
 	if _, err := toml.DecodeFile(*flagConfigFile, &conf); err != nil {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
-
-	//TODO: вынести в инициализацию сервера бекенда
-	target = scheduler.NewUpstream(conf.Servers["alpha"].IP, conf.Servers["alpha"].Port, conf.Servers["alpha"].Weight)
-	target.GetTargetLastBlock(ctx)
-	log.Println("target state is ", target.FSM.Current())
-	log.Println("target last block ", target.LastBlock.String())
+	log.Println("count of servers: ", len(conf.Servers))
+	initBackendServers()
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())

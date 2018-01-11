@@ -2,10 +2,9 @@ package scheduler
 
 // Config is struct for config.toml file
 type Config struct {
-	Port int
-	Bind string
-
-	Servers map[string]server
+	Port    int
+	Bind    string
+	Servers []server
 }
 
 type server struct {
@@ -13,4 +12,5 @@ type server struct {
 	Port   string
 	Weight int
 	Backup bool
+	Token  string
 }

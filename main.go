@@ -14,6 +14,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
 )
@@ -21,10 +22,10 @@ import (
 const gethinxVersion = "0.0.1"
 
 var (
-	numBlocks int64 = 3644
-	target    *scheduler.Upstream
-	conf      scheduler.Config
-	backends  map[string]scheduler.Upstream
+	lastBlock    int64
+	lastBlockHex string
+	conf         scheduler.Config
+	backends     map[int]scheduler.Upstream
 )
 
 func setBlock(c *gin.Context) {
@@ -32,7 +33,7 @@ func setBlock(c *gin.Context) {
 	//TODO: произвести расчет нового среднего блока
 	//TODO: проблема доверия к агенту!!!
 	c.JSON(200, gin.H{
-		"blocks": atomic.LoadInt64(&numBlocks),
+		"blocks": atomic.LoadInt64(&lastBlock),
 	})
 }
 
@@ -40,8 +41,12 @@ func initBackendServers() {
 	if len(conf.Servers) == 0 {
 		log.Fatalln("Servers for backend is not defined")
 	}
-	backends = make(map[string]scheduler.Upstream, len(conf.Servers))
-	for srvKey, srvValue := range conf.Servers {
+	lastBlock = 0
+	lastBlockHex = lib.I2H(lastBlock)
+
+	backends = make(map[int]scheduler.Upstream, len(conf.Servers))
+	srvKey := 0
+	for _, srvValue := range conf.Servers {
 		backends[srvKey] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight)
 		log.Println("add server ", srvKey, " with ", backends[srvKey].Target)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -51,6 +56,7 @@ func initBackendServers() {
 		target.GetTargetLastBlock(ctx)
 		log.Println("target ", target.Target, " state is ", target.FSM.Current())
 		log.Println("target ", target.Target, "last block ", target.LastBlock)
+		srvKey++
 	}
 }
 

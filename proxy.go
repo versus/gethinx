@@ -51,6 +51,7 @@ func reverseProxy(c *gin.Context) {
 	}
 
 	//TODO setup our target url
+	target := backends[0]
 	log.Println("Target host: ", target.Target)
 	url, err := target.GetURL()
 	if err != nil {

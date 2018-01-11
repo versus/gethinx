@@ -1,18 +1,19 @@
 bind ="127.0.0.1"
 port = 8545
 
-[servers]
+[[servers]]
+ip = "127.0.0.1"
+port = "8181"
+weight = 5
+token = "aaaaaaaaaaaa"
 
-  [servers.alpha]
-  ip = "127.0.0.1"
-  port = "8181"
-  weight = 5
+[[servers]]
+ip = "127.0.0.1"
+port = "8080"
+token = "11123433242341"
 
-  [servers.beta]
-  ip = "127.0.0.1"
-  port = "8080"
-
-  [servers.gamma]
-  ip = "127.0.0.1"
-  port = "8282"
-  backup = true
+[[servers]]
+ip = "127.0.0.1"
+port = "8282"
+backup = true
+token = "weuyroiwuqyr"

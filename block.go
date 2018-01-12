@@ -43,7 +43,6 @@ func setBlock(c *gin.Context) {
 	//TODO: переделать слайс на мапу с ключем в виде токена
 	//Возможно надо создать канал для входящих запросов и увести функцию в горутину
 	var agethBlock EthBlock
-	tockenAccess := false
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request
 
@@ -51,27 +50,15 @@ func setBlock(c *gin.Context) {
 	if err := json.Unmarshal(bytes, &agethBlock); err != nil {
 		log.Println("Error unmarshal ", err.Error())
 	}
-	go func() {
-		i := 0
-		for _, srv := range backends {
-			if string(srv.Token) == string(agethBlock.Token) {
-				tockenAccess = true
-				srv.Mutex.Lock()
-				srv.LastBlock = agethBlock.Dig
-				srv.HexLastBlock = lib.I2H(agethBlock.Dig)
-				srv.Mutex.Unlock()
-				backends[i] = srv
-				log.Println("block ", srv.LastBlock, "i = ", i)
-				break
-			}
-			i++
-		}
-		if tockenAccess == false {
-			log.Println("token error ", agethBlock.Token)
-		}
 
-		c.JSON(200, gin.H{
-			"blocks": atomic.LoadInt64(&LastBlock.Dig),
-		})
-	}()
+	srv := backends[agethBlock.Token]
+	srv.Mutex.Lock()
+	srv.LastBlock = agethBlock.Dig
+	srv.HexLastBlock = lib.I2H(agethBlock.Dig)
+	srv.Mutex.Unlock()
+	backends[agethBlock.Token] = srv
+
+	c.JSON(200, gin.H{
+		"blocks": atomic.LoadInt64(&LastBlock.Dig),
+	})
 }

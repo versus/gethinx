@@ -21,7 +21,7 @@ const (
 var (
 	LastBlock EthBlock
 	conf      scheduler.Config
-	backends  map[int]scheduler.Upstream
+	backends  map[string]scheduler.Upstream
 )
 
 func initBackendServers() {
@@ -29,17 +29,15 @@ func initBackendServers() {
 		log.Fatalln("Servers for backend is not defined")
 	}
 
-	backends = make(map[int]scheduler.Upstream, len(conf.Servers))
-	srvKey := 0
+	backends = make(map[string]scheduler.Upstream, len(conf.Servers))
 	for _, srvValue := range conf.Servers {
-		backends[srvKey] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token)
-		log.Println("add server ", srvKey, " with ", backends[srvKey].Target)
+		backends[srvValue.Token] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token)
+		log.Println("add server  with ", backends[srvValue.Token].Target)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		target := backends[srvKey]
+		target := backends[srvValue.Token]
 		target.GetTargetLastBlock(ctx)
-		backends[srvKey] = target
-		srvKey++
+		backends[srvValue.Token] = target
 	}
 }
 

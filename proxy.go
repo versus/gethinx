@@ -28,7 +28,7 @@ func reverseProxy(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"jsonrpc": "2.0",
 			"id":      req.ID,
-			"result":  "0x82a",
+			"result":  LastBlock.Hex,
 		})
 		return
 	}

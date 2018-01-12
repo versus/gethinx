@@ -12,6 +12,8 @@ import (
 
 	"time"
 
+	"sync"
+
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
@@ -22,27 +24,52 @@ import (
 const gethinxVersion = "0.0.1"
 
 var (
-	lastBlock    int64
-	lastBlockHex string
-	conf         scheduler.Config
-	backends     map[int]scheduler.Upstream
+	LastBlock EthLastBlock
+	conf      scheduler.Config
+	backends  map[int]scheduler.Upstream
 )
+
+type EthLastBlock struct {
+	Dig   int64
+	Hex   string
+	Mutex sync.Mutex
+}
 
 func setBlock(c *gin.Context) {
 	//TODO: распарсить последний блок и занести в мапу серверов бекенда
 	//TODO: произвести расчет нового среднего блока
-	//TODO: проблема доверия к агенту!!!
+	//TODO: проблема доверия к агенту, возможно надо менять токены  прик аждом запросе!!!
 	c.JSON(200, gin.H{
-		"blocks": atomic.LoadInt64(&lastBlock),
+		"blocks": atomic.LoadInt64(&LastBlock.Dig),
 	})
+}
+
+func generateLastBlockAverage() {
+	sum, count := int64(0), int64(0)
+	average := int64(0)
+
+	for _, srv := range backends {
+		log.Println(" fsm is ", srv.FSM.Current())
+		if srv.FSM.Current() == "active" {
+			sum = sum + srv.LastBlock
+			count++
+		}
+	}
+	log.Println("sum is ", sum, " count is ", count)
+	if count != 0 {
+		average = int64(sum / count)
+	}
+	LastBlock.Mutex.Lock()
+	LastBlock.Dig = average
+	LastBlock.Hex = lib.I2H(average)
+	LastBlock.Mutex.Unlock()
+
 }
 
 func initBackendServers() {
 	if len(conf.Servers) == 0 {
 		log.Fatalln("Servers for backend is not defined")
 	}
-	lastBlock = 0
-	lastBlockHex = lib.I2H(lastBlock)
 
 	backends = make(map[int]scheduler.Upstream, len(conf.Servers))
 	srvKey := 0
@@ -51,11 +78,9 @@ func initBackendServers() {
 		log.Println("add server ", srvKey, " with ", backends[srvKey].Target)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-
 		target := backends[srvKey]
 		target.GetTargetLastBlock(ctx)
-		log.Println("target ", target.Target, " state is ", target.FSM.Current())
-		log.Println("target ", target.Target, "last block ", target.LastBlock)
+		backends[srvKey] = target
 		srvKey++
 	}
 }
@@ -77,6 +102,7 @@ func main() {
 
 	log.Println("count of servers: ", len(conf.Servers))
 	initBackendServers()
+	generateLastBlockAverage()
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())

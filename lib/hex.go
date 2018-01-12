@@ -18,7 +18,7 @@ func H2I(hex string) (int64, error) {
 
 // I2H function return hex string of int64 base number
 func I2H(i int64) string {
-	return fmt.Sprintf("0x%s", strconv.FormatInt(3644, 16))
+	return fmt.Sprintf("0x%s", strconv.FormatInt(i, 16))
 }
 
 // Key return random string

@@ -12,9 +12,6 @@ import (
 func getStatus(c *gin.Context) {
 	var backendsServerList []string
 	for _, server := range backends {
-		server.Mutex.Lock()
-		server.RealState = server.FSM.Current()
-		server.Mutex.Unlock()
 		jsrv, err := json.Marshal(server)
 		if err != nil {
 			log.Print("Error marchal backendsServerList for status ", err.Error())
@@ -23,6 +20,6 @@ func getStatus(c *gin.Context) {
 	}
 	c.JSON(200, gin.H{
 		"ServerList":       backendsServerList,
-		"LastBlockAverage": atomic.LoadInt64(&lastBlock),
+		"LastBlockAverage": atomic.LoadInt64(&LastBlock.Dig),
 	})
 }

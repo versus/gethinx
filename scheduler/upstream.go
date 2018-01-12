@@ -114,12 +114,19 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 
 			}
 		}
+		u.Mutex.Lock()
+		u.LastBlock = 0
+		u.HexLastBlock = lib.I2H(0)
+		u.RealState = u.FSM.Current()
+		u.Mutex.Unlock()
 		return
 	}
 
 	bint := *header.Number
+	u.Mutex.Lock()
 	if bint.IsInt64() {
 		u.LastBlock = bint.Int64()
+		u.HexLastBlock = lib.I2H(u.LastBlock)
 		if u.FSM.Current() == "down" {
 			if err = u.FSM.Event("up"); err != nil {
 				log.Fatalln("error change  state FSM to  UP: ", err.Error())
@@ -127,12 +134,15 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 		}
 	} else {
 		u.LastBlock = 0
+		u.HexLastBlock = lib.I2H(0)
 		if u.FSM.Current() == "up" {
 			if err = u.FSM.Event("suspend"); err != nil {
 				log.Fatalln("error change  state FSM to  Down: ", err.Error())
 			}
 		}
 	}
+	u.RealState = u.FSM.Current()
+	u.Mutex.Unlock()
 }
 
 func (u *Upstream) enterState(event *fsm.Event) {
@@ -155,6 +165,7 @@ func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 			log.Fatalln("error change  state FSM to  UP: ", err.Error())
 		}
 	}
+	u.RealState = u.FSM.Current()
 	u.Mutex.Unlock()
 	return err
 }

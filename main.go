@@ -47,7 +47,7 @@ func initBackendServers() {
 	backends = make(map[int]scheduler.Upstream, len(conf.Servers))
 	srvKey := 0
 	for _, srvValue := range conf.Servers {
-		backends[srvKey] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight)
+		backends[srvKey] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token)
 		log.Println("add server ", srvKey, " with ", backends[srvKey].Target)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -81,14 +81,14 @@ func main() {
 	router := gin.Default()
 	router.Use(middle.RequestLogger())
 	router.Use(middle.ResponseLogger)
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/api/v1/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 	router.POST("/api/v1/newblock", setBlock)
 	router.POST("/", reverseProxy)
-	router.GET("/status", getStatus)
+	router.GET("/api/v1/status", getStatus)
 	err := router.Run(addr)
 	if err != nil {
 		log.Println("Error run gin router: ", err.Error())

@@ -13,6 +13,8 @@ import (
 
 	"context"
 
+	"sync"
+
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/looplab/fsm"
 	"github.com/versus/gethinx/lib"
@@ -20,20 +22,23 @@ import (
 
 // Upstream is host for reverseproxy request from ethclients
 type Upstream struct {
-	Port         uint16
-	TimeUpdate   int64
-	Weight       uint8
-	Backup       bool
-	Host         string
-	Target       string
-	LastBlock    int64
-	HexLastBlock string
-	State        string
-	FSM          *fsm.FSM
+	Port         uint16     `json:"-"`
+	TimeUpdate   int64      `json:"lastupdate"`
+	Weight       uint8      `json:"weight"`
+	Backup       bool       `json:"-"`
+	Host         string     `json:"-"`
+	Target       string     `json:"url"`
+	Token        string     `json:"-"`
+	LastBlock    int64      `json:"digblock"`
+	HexLastBlock string     `json:"lastblock"`
+	State        string     `json:"-"`
+	RealState    string     `json:"status"`
+	FSM          *fsm.FSM   `json:"-"`
+	Mutex        sync.Mutex `json:"-"`
 }
 
 // NewUpstream is constructor for Upstream
-func NewUpstream(host string, port string, weight int) *Upstream {
+func NewUpstream(host string, port string, weight int, token string) *Upstream {
 
 	uintPort, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
@@ -66,10 +71,12 @@ func NewUpstream(host string, port string, weight int) *Upstream {
 	}
 
 	upstream := &Upstream{
-		Host:   host,
-		Target: target.String(),
-		Port:   uint16(uintPort),
-		Weight: uint8(weight),
+		Host:       host,
+		Target:     target.String(),
+		Port:       uint16(uintPort),
+		Weight:     uint8(weight),
+		Token:      token,
+		TimeUpdate: time.Now().Unix(),
 	}
 
 	upstream.FSM = fsm.NewFSM(
@@ -135,6 +142,7 @@ func (u *Upstream) enterState(event *fsm.Event) {
 // UpdateLastBlock function for update some fileds in Upstrea: LastBlock value, TimeUpdate value and state to UP
 func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 	var err error
+	u.Mutex.Lock()
 	u.LastBlock, err = lib.H2I(hexLastBlock)
 	if err != nil {
 		log.Fatalln("Error convert block to int", err.Error())
@@ -147,6 +155,7 @@ func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 			log.Fatalln("error change  state FSM to  UP: ", err.Error())
 		}
 	}
+	u.Mutex.Unlock()
 	return err
 }
 

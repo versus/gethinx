@@ -15,5 +15,4 @@ token = "11123433242341"
 [[servers]]
 ip = "127.0.0.1"
 port = "8282"
-backup = true
 token = "weuyroiwuqyr"

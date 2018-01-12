@@ -1,70 +1,28 @@
 package main
 
 import (
-	"log"
-	"sync/atomic"
-
-	"flag"
-
-	"fmt"
-
 	"context"
-
+	"flag"
+	"fmt"
+	"log"
 	"time"
-
-	"sync"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
-	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
 )
 
-const gethinxVersion = "0.0.1"
+const (
+	Version = "v0.0.1"
+	Author  = " by Valentyn Nastenko [versus.dev@gmail.com]"
+)
 
 var (
-	LastBlock EthLastBlock
+	LastBlock EthBlock
 	conf      scheduler.Config
 	backends  map[int]scheduler.Upstream
 )
-
-type EthLastBlock struct {
-	Dig   int64
-	Hex   string
-	Mutex sync.Mutex
-}
-
-func setBlock(c *gin.Context) {
-	//TODO: распарсить последний блок и занести в мапу серверов бекенда
-	//TODO: произвести расчет нового среднего блока
-	//TODO: проблема доверия к агенту, возможно надо менять токены  прик аждом запросе!!!
-	c.JSON(200, gin.H{
-		"blocks": atomic.LoadInt64(&LastBlock.Dig),
-	})
-}
-
-func generateLastBlockAverage() {
-	sum, count := int64(0), int64(0)
-	average := int64(0)
-
-	for _, srv := range backends {
-		log.Println(" fsm is ", srv.FSM.Current())
-		if srv.FSM.Current() == "active" {
-			sum = sum + srv.LastBlock
-			count++
-		}
-	}
-	log.Println("sum is ", sum, " count is ", count)
-	if count != 0 {
-		average = int64(sum / count)
-	}
-	LastBlock.Mutex.Lock()
-	LastBlock.Dig = average
-	LastBlock.Hex = lib.I2H(average)
-	LastBlock.Mutex.Unlock()
-
-}
 
 func initBackendServers() {
 	if len(conf.Servers) == 0 {
@@ -92,7 +50,7 @@ func main() {
 	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
 	flag.Parse()
 
-	log.Println("gethinx ", gethinxVersion, " (c)2018 Valentyn Nastenko")
+	log.Println("gethinx ", Version, Author)
 
 	if _, err := toml.DecodeFile(*flagConfigFile, &conf); err != nil {
 		log.Fatalln("Error parse config.toml", err.Error())
@@ -100,7 +58,6 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
-	log.Println("count of servers: ", len(conf.Servers))
 	initBackendServers()
 	generateLastBlockAverage()
 

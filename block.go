@@ -1,35 +1,17 @@
 package main
 
 import (
-	"net/url"
-	"sync"
 	"sync/atomic"
 
 	"encoding/json"
 	"log"
 
-	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
+	"github.com/versus/gethinx/scheduler"
 )
-
-type EthBlock struct {
-	Dig   int64 `json:"block"`
-	Hex   string
-	Token string `json:"token"`
-	Mutex sync.RWMutex
-}
-
-func GetTargetNode(block int64) (*url.URL, error) {
-	wBlock := block
-	if block == -1 {
-		wBlock = atomic.LoadInt64(&LastBlock.Dig)
-	}
-	log.Println("target node for block:", fmt.Sprintf("%v", wBlock))
-	srv := backends["Q!@W#E$R%T^Y"]
-	return srv.GetURL()
-}
 
 func generateLastBlockAverage() {
 	sum, count := int64(0), int64(0)
@@ -48,14 +30,12 @@ func generateLastBlockAverage() {
 	LastBlock.Dig = average
 	LastBlock.Hex = lib.I2H(average)
 	LastBlock.Mutex.Unlock()
-
 }
 
 func setBlock(c *gin.Context) {
 	//TODO: проблема доверия к агенту, возможно надо менять токены  при каждом запросе!!!
-	//TODO: переделать слайс на мапу с ключем в виде токена
 	//Возможно надо создать канал для входящих запросов и увести функцию в горутину
-	var agethBlock EthBlock
+	var agethBlock scheduler.EthBlock
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request
 
@@ -69,6 +49,8 @@ func setBlock(c *gin.Context) {
 	LastBlock.Mutex.RLock()
 	srv.LastBlock = agethBlock.Dig
 	srv.HexLastBlock = lib.I2H(agethBlock.Dig)
+	srv.TimeUpdate = time.Now().Unix()
+	srv.FSM.Event("up")
 	LastBlock.Mutex.RUnlock()
 	srv.Mutex.Unlock()
 	backends[agethBlock.Token] = srv

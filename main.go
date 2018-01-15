@@ -19,7 +19,7 @@ const (
 )
 
 var (
-	LastBlock EthBlock
+	LastBlock scheduler.EthBlock
 	conf      scheduler.Config
 	backends  map[string]scheduler.Upstream
 )

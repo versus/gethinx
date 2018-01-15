@@ -57,7 +57,7 @@ func main() {
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
 	initBackendServers()
-	generateLastBlockAverage()
+	scheduler.GenerateLastBlockAverage(backends, &LastBlock)
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())

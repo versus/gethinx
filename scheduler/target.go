@@ -21,6 +21,8 @@ func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBloc
 		wBlock = atomic.LoadInt64(&lastblock.Dig)
 	}
 	log.Println("target node for block:", fmt.Sprintf("%v", wBlock))
+
 	srv := backends["Q!@W#E$R%T^Y"]
+
 	return srv.GetURL()
 }

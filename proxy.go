@@ -29,11 +29,16 @@ func reverseProxy(c *gin.Context) {
 	}
 
 	log.Println(req.Method)
+
+	LastBlock.Mutex.RLock()
+	hex := LastBlock.Hex
+	LastBlock.Mutex.RUnlock()
+
 	if req.Method == "eth_blockNumber" {
 		c.JSON(200, gin.H{
 			"jsonrpc": "2.0",
 			"id":      req.ID,
-			"result":  LastBlock.Hex,
+			"result":  hex,
 		})
 		return
 	}
@@ -58,7 +63,7 @@ func reverseProxy(c *gin.Context) {
 	url, err = scheduler.GetTargetNode(backends, block, &LastBlock)
 
 	if err != nil {
-		log.Fatal("Error get URL for ReverseProxy  ", err.Error())
+		log.Println("Error get URL for ReverseProxy  ", err.Error())
 	}
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ServeHTTP(c.Writer, c.Request)

@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -18,8 +19,13 @@ type EthBlock struct {
 }
 
 func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBlock) (*url.URL, error) {
+
+	//TODO: учитывать количество коннектов на бекенд
+	//TODO: если количество коннектов исчерпано перейти на сервера бэкапа
+
 	wBlock := block
 	roulete := make([]string, 0)
+	var srv Upstream
 	if block == -1 {
 		wBlock = atomic.LoadInt64(&lastblock.Dig)
 	}
@@ -35,12 +41,14 @@ func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBloc
 
 		}
 	}
-	rand.Seed(time.Now().Unix())
-	winner := rand.Int() % len(roulete)
-	srv := backends[roulete[winner]]
+	if len(roulete) > 0 {
+		rand.Seed(time.Now().Unix())
+		winner := rand.Int() % len(roulete)
+		srv = backends[roulete[winner]]
+		log.Println("target node ", srv.Target, " for block:", fmt.Sprintf("%v", wBlock))
+		return srv.GetURL()
+	}
 
-	//srv := backends["Q!@W#E$R%T^Y"]
+	return nil, errors.New("Not found avtive servers")
 
-	log.Println("target node ", srv.Target, " for block:", fmt.Sprintf("%v", wBlock))
-	return srv.GetURL()
 }

@@ -1,9 +1,9 @@
-package scheduler
+package main
 
 import "github.com/versus/gethinx/lib"
 
 //GenerateLastBlockAverage is func for generate average ariphemic number block
-func GenerateLastBlockAverage(backends map[string]Upstream, lastBlock *EthBlock) {
+func GenerateLastBlockAverage() {
 	sum, count := int64(0), int64(0)
 	average := int64(0)
 
@@ -16,8 +16,8 @@ func GenerateLastBlockAverage(backends map[string]Upstream, lastBlock *EthBlock)
 	if count != 0 {
 		average = int64(sum / count)
 	}
-	lastBlock.Mutex.Lock()
-	lastBlock.Dig = average
-	lastBlock.Hex = lib.I2H(average)
-	lastBlock.Mutex.Unlock()
+	LastBlock.Mutex.Lock()
+	LastBlock.Dig = average
+	LastBlock.Hex = lib.I2H(average)
+	LastBlock.Mutex.Unlock()
 }

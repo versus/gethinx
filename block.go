@@ -35,9 +35,10 @@ func setBlock(c *gin.Context) {
 	LastBlock.Mutex.RUnlock()
 	srv.Mutex.Unlock()
 	backends[agethBlock.Token] = srv
-	scheduler.GenerateLastBlockAverage(backends, &LastBlock)
+	GenerateLastBlockAverage()
 
 	c.JSON(200, gin.H{
 		"average blocks": atomic.LoadInt64(&LastBlock.Dig),
 	})
+
 }

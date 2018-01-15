@@ -24,6 +24,10 @@ var (
 	backends  map[string]scheduler.Upstream
 )
 
+func checkAlive() {
+
+}
+
 func initBackendServers() {
 	if len(conf.Servers) == 0 {
 		log.Fatalln("Servers for backend is not defined")
@@ -38,6 +42,35 @@ func initBackendServers() {
 		target := backends[srvValue.Token]
 		target.GetTargetLastBlock(ctx)
 		backends[srvValue.Token] = target
+	}
+}
+
+func TickerUpstream() {
+	tick := time.Tick(time.Second * 10)
+	for {
+		select {
+		case <-tick:
+			alive := 0
+			for key, srv := range backends {
+				if srv.FSM.Current() == "active" {
+					log.Println("timer for srv ", srv.Target)
+					lastTimeUpdate := time.Unix(srv.TimeUpdate, 0)
+					now := time.Now()
+					diff := now.Sub(lastTimeUpdate)
+					log.Println("time sub is ", int64(diff/1000000000), "suspend time is ", int64(conf.Suspend))
+					if int64(diff/1000000000) > int64(conf.Suspend) {
+						srv.Mutex.Lock()
+						srv.FSM.Event("suspend")
+						srv.Mutex.Unlock()
+					}
+					backends[key] = srv
+				}
+			}
+			if alive == 0 {
+				go checkAlive()
+			}
+
+		}
 	}
 }
 
@@ -57,7 +90,9 @@ func main() {
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 
 	initBackendServers()
-	scheduler.GenerateLastBlockAverage(backends, &LastBlock)
+	GenerateLastBlockAverage()
+
+	go TickerUpstream()
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())

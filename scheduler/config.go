@@ -4,6 +4,7 @@ package scheduler
 type Config struct {
 	Port    int
 	Bind    string
+	Suspend int
 	Servers []server
 }
 

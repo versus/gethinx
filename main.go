@@ -52,7 +52,7 @@ func initBackendServers() {
 
 }
 
-func TickerUpstream() {
+func AgentTickerUpstream() {
 	tick := time.Tick(time.Second * 10)
 	for {
 		select {
@@ -100,7 +100,7 @@ func main() {
 	initBackendServers()
 	GenerateLastBlockAverage()
 
-	go TickerUpstream()
+	go AgentTickerUpstream()
 
 	router := gin.Default()
 	router.Use(middle.RequestLogger())

@@ -51,7 +51,7 @@ func AgentTickerUpstream() {
 				}
 			}
 			if alive == 0 {
-				go checkAlive()
+				checkAlive()
 			}
 
 		}
@@ -63,6 +63,7 @@ func checkAlive() {
 	defer cancel()
 	for key, srv := range backends {
 		srv.GetTargetLastBlock(ctx)
+		log.Println("checkAlive: ", srv.Target, " is ", srv.FSM.Current())
 		backends[key] = srv
 	}
 	GenerateLastBlockAverage()

@@ -82,7 +82,7 @@ func NewUpstream(host string, port string, weight int, token string) *Upstream {
 	upstream.FSM = fsm.NewFSM(
 		"down",
 		fsm.Events{
-			{Name: "up", Src: []string{"down", "backup"}, Dst: "active"},
+			{Name: "up", Src: []string{"down", "suspend", "backup"}, Dst: "active"},
 			{Name: "down", Src: []string{"active", "backup", "suspend"}, Dst: "down"},
 			{Name: "backup", Src: []string{"active", "suspend"}, Dst: "backup"},
 			{Name: "suspend", Src: []string{"active", "backup"}, Dst: "suspend"},
@@ -98,10 +98,9 @@ func NewUpstream(host string, port string, weight int, token string) *Upstream {
 func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 
 	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
-	log.Println("addr is ", addr)
 	conn, err := ethclient.Dial(addr)
 	if err != nil {
-		log.Fatalf("Failed to connect to the Ethereum client: %v", err)
+		log.Fatalf("Failed to connect to the Ethereum client: ", err)
 	}
 
 	header, err := conn.HeaderByNumber(ctx, nil)
@@ -109,42 +108,45 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 		log.Println("Failed get HeaderByNumber: %v", err)
 		u.LastBlock = 0
 		if u.FSM.Current() == "up" {
-			if err = u.FSM.Event("suspend"); err != nil {
-				log.Fatalln("error change  state FSM to  Down: ", err.Error())
-
-			}
+			u.FSM.Event("suspend")
 		}
 		u.Mutex.Lock()
 		u.LastBlock = 0
 		u.HexLastBlock = lib.I2H(0)
 		u.RealState = u.FSM.Current()
 		u.Mutex.Unlock()
-
 		return
 	}
 
 	bint := *header.Number
-	u.Mutex.Lock()
+
 	if bint.IsInt64() {
+		u.Mutex.Lock()
 		u.LastBlock = bint.Int64()
 		u.HexLastBlock = lib.I2H(u.LastBlock)
+		u.Mutex.Unlock()
+
 		if u.FSM.Current() == "down" {
-			if err = u.FSM.Event("up"); err != nil {
-				log.Fatalln("error change  state FSM to  UP: ", err.Error())
-			}
-		} else if u.FSM.Current() == "suspend" {
 			u.FSM.Event("up")
 		}
+		if u.FSM.Current() == "suspend" {
+			u.FSM.Event("up")
+		}
+		log.Println(u.Target, " is ", u.FSM.Current())
 	} else {
+		u.Mutex.Lock()
 		u.LastBlock = 0
 		u.HexLastBlock = lib.I2H(0)
+		u.Mutex.Unlock()
 		if u.FSM.Current() == "up" {
 			if err = u.FSM.Event("suspend"); err != nil {
-				log.Fatalln("error change  state FSM to  Down: ", err.Error())
+				log.Println("error change  state FSM to  Down: ", err.Error())
 			}
 		}
 	}
+	u.Mutex.Lock()
 	u.RealState = u.FSM.Current()
+	u.TimeUpdate = time.Now().Unix()
 	u.Mutex.Unlock()
 }
 

@@ -25,7 +25,13 @@ var (
 )
 
 func checkAlive() {
-
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	for key, srv := range backends {
+		srv.GetTargetLastBlock(ctx)
+		backends[key] = srv
+	}
+	GenerateLastBlockAverage()
 }
 
 func initBackendServers() {
@@ -43,6 +49,7 @@ func initBackendServers() {
 		target.GetTargetLastBlock(ctx)
 		backends[srvValue.Token] = target
 	}
+
 }
 
 func TickerUpstream() {
@@ -53,6 +60,7 @@ func TickerUpstream() {
 			alive := 0
 			for key, srv := range backends {
 				if srv.FSM.Current() == "active" {
+					alive++
 					log.Println("timer for srv ", srv.Target)
 					lastTimeUpdate := time.Unix(srv.TimeUpdate, 0)
 					now := time.Now()

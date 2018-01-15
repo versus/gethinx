@@ -61,9 +61,9 @@ func reverseProxy(c *gin.Context) {
 
 	}
 	url, err = scheduler.GetTargetNode(backends, block, &LastBlock)
-
 	if err != nil {
 		log.Println("Error get URL for ReverseProxy  ", err.Error())
+		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(url)
 	proxy.ServeHTTP(c.Writer, c.Request)

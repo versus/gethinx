@@ -113,12 +113,16 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 				log.Fatalln("error change  state FSM to  Down: ", err.Error())
 
 			}
+		} else if u.FSM.Current() == "suspend" {
+			u.FSM.Event("up")
 		}
+
 		u.Mutex.Lock()
 		u.LastBlock = 0
 		u.HexLastBlock = lib.I2H(0)
 		u.RealState = u.FSM.Current()
 		u.Mutex.Unlock()
+
 		return
 	}
 

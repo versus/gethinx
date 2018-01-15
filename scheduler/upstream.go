@@ -113,10 +113,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 				log.Fatalln("error change  state FSM to  Down: ", err.Error())
 
 			}
-		} else if u.FSM.Current() == "suspend" {
-			u.FSM.Event("up")
 		}
-
 		u.Mutex.Lock()
 		u.LastBlock = 0
 		u.HexLastBlock = lib.I2H(0)
@@ -135,6 +132,8 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 			if err = u.FSM.Event("up"); err != nil {
 				log.Fatalln("error change  state FSM to  UP: ", err.Error())
 			}
+		} else if u.FSM.Current() == "suspend" {
+			u.FSM.Event("up")
 		}
 	} else {
 		u.LastBlock = 0
@@ -150,7 +149,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 }
 
 func (u *Upstream) enterState(event *fsm.Event) {
-	log.Printf("The upstream to %s is %s\n", u.State, event.Dst)
+	log.Printf("The upstream %s is %s\n", u.Target, event.Dst)
 }
 
 // UpdateLastBlock function for update some fileds in Upstrea: LastBlock value, TimeUpdate value and state to UP

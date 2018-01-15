@@ -5,12 +5,12 @@ port = 8545
 ip = "127.0.0.1"
 port = "8181"
 weight = 5
-token = "aaaaaa"
+token = "Q!@W#E$R%T^Y"
 
 [[servers]]
 ip = "127.0.0.1"
 port = "8080"
-token = "11123433242341"
+token = "XDZSCFVGBH"
 
 [[servers]]
 ip = "127.0.0.1"

@@ -1,11 +1,14 @@
 package main
 
 import (
+	"net/url"
 	"sync"
 	"sync/atomic"
 
 	"encoding/json"
 	"log"
+
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
@@ -15,7 +18,17 @@ type EthBlock struct {
 	Dig   int64 `json:"block"`
 	Hex   string
 	Token string `json:"token"`
-	Mutex sync.Mutex
+	Mutex sync.RWMutex
+}
+
+func GetTargetNode(block int64) (*url.URL, error) {
+	wBlock := block
+	if block == -1 {
+		wBlock = atomic.LoadInt64(&LastBlock.Dig)
+	}
+	log.Println("target node for block:", fmt.Sprintf("%v", wBlock))
+	srv := backends["Q!@W#E$R%T^Y"]
+	return srv.GetURL()
 }
 
 func generateLastBlockAverage() {
@@ -53,12 +66,15 @@ func setBlock(c *gin.Context) {
 
 	srv := backends[agethBlock.Token]
 	srv.Mutex.Lock()
+	LastBlock.Mutex.RLock()
 	srv.LastBlock = agethBlock.Dig
 	srv.HexLastBlock = lib.I2H(agethBlock.Dig)
+	LastBlock.Mutex.RUnlock()
 	srv.Mutex.Unlock()
 	backends[agethBlock.Token] = srv
+	generateLastBlockAverage()
 
 	c.JSON(200, gin.H{
-		"blocks": atomic.LoadInt64(&LastBlock.Dig),
+		"average blocks": atomic.LoadInt64(&LastBlock.Dig),
 	})
 }

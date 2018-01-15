@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http/httputil"
 
+	"net/url"
+
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/scheduler"
@@ -13,7 +15,10 @@ import (
 func reverseProxy(c *gin.Context) {
 
 	var req scheduler.JSONRPCMessage
-	var block int64
+	var block int64 = -1
+
+	var url *url.URL
+	var err error
 
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request
@@ -32,6 +37,7 @@ func reverseProxy(c *gin.Context) {
 		})
 		return
 	}
+
 	if req.Method == "eth_getBlockByNumber" {
 		//TODO check null and latest
 		// Req:  {"jsonrpc":"2.0","id":13,"method":"eth_getBlockByNumber","params":[null,false]}
@@ -47,13 +53,10 @@ func reverseProxy(c *gin.Context) {
 				log.Println("Error unhex block number ", err.Error())
 			}
 		}
-		log.Println("Number  ", block)
-	}
 
-	//TODO setup our target url
-	target := backends["aaaaaa"]
-	log.Println("Target host: ", target.Target)
-	url, err := target.GetURL()
+	}
+	url, err = GetTargetNode(block)
+
 	if err != nil {
 		log.Fatal("Error get URL for ReverseProxy  ", err.Error())
 	}

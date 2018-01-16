@@ -2,13 +2,10 @@ package lib
 
 import (
 	"crypto/rand"
+	"encoding/hex"
 	"fmt"
-	"log"
 	"strconv"
 )
-
-//_ = lib.H2I("0xe6")
-//_ = lib.I2H(230)
 
 // H2I function return int64 number from hex string of number
 func H2I(hex string) (int64, error) {
@@ -22,13 +19,14 @@ func I2H(i int64) string {
 }
 
 // Key return random string
-func Key() {
+func Key() string {
 	buf := make([]byte, 16)
 	_, err := rand.Read(buf)
 	if err != nil {
 		panic(err) // out of randomness, should never happen
 	}
-	log.Printf("%x", buf)
+
+	return hex.EncodeToString(buf)
 	// or hex.EncodeToString(buf)
 	// or base64.StdEncoding.EncodeToString(buf)
 }

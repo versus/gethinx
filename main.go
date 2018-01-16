@@ -47,6 +47,9 @@ func main() {
 
 	ar := gin.New()
 	ar.LoadHTMLGlob("templates/*")
+
+	//http://arlimus.github.io/articles/gin.and.gorilla/
+
 	ar.GET("/status", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "status.tmpl", gin.H{
 			"title": "Gethinx status page",

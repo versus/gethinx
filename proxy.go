@@ -7,6 +7,8 @@ import (
 
 	"net/url"
 
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/scheduler"
@@ -63,6 +65,7 @@ func reverseProxy(c *gin.Context) {
 	url, err = scheduler.GetTargetNode(backends, block, &LastBlock)
 	if err != nil {
 		log.Println("Error get URL for ReverseProxy  ", err.Error())
+		c.Writer.WriteHeader(http.StatusBadGateway)
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(url)

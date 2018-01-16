@@ -32,10 +32,12 @@ func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBloc
 
 	for key, srv := range backends {
 		if srv.FSM.Current() == "active" {
-			roulete = append(roulete, key)
-			if srv.Weight > 1 {
-				for i := 0; i < int(srv.Weight-1); i++ {
-					roulete = append(roulete, key)
+			if srv.LastBlock >= block {
+				roulete = append(roulete, key)
+				if srv.Weight > 1 {
+					for i := 0; i < int(srv.Weight-1); i++ {
+						roulete = append(roulete, key)
+					}
 				}
 			}
 

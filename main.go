@@ -36,23 +36,34 @@ func main() {
 	}
 
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
+	addrAdmin := fmt.Sprintf("%s:%d", conf.Bind, conf.AdminPort)
 
 	initBackendServers()
 	GenerateLastBlockAverage()
 
 	go AgentTickerUpstream()
 
-	router := gin.Default()
-	router.Use(middle.RequestLogger())
-	router.Use(middle.ResponseLogger)
-	router.GET("/api/v1/ping", func(c *gin.Context) {
+	ar := gin.New()
+	ar.GET("/api/v1/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
-	router.POST("/api/v1/newblock", setBlock)
+	ar.POST("/api/v1/newblock", setBlock)
+	ar.GET("/api/v1/status", getStatus)
+	go func() {
+		err := ar.Run(addrAdmin)
+		if err != nil {
+			log.Println("Error run admin router: ", err.Error())
+		}
+	}()
+
+	router := gin.Default()
+	router.Use(middle.RequestLogger())
+	router.Use(middle.ResponseLogger)
+
 	router.POST("/", reverseProxy)
-	router.GET("/api/v1/status", getStatus)
+
 	err := router.Run(addr)
 	if err != nil {
 		log.Println("Error run gin router: ", err.Error())

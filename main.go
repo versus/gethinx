@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"net/http"
+
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
@@ -44,6 +46,12 @@ func main() {
 	go AgentTickerUpstream()
 
 	ar := gin.New()
+	ar.LoadHTMLGlob("templates/*")
+	ar.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "status.tmpl", gin.H{
+			"title": "Gethinx status page",
+		})
+	})
 	ar.GET("/api/v1/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",

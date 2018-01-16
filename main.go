@@ -47,7 +47,7 @@ func main() {
 
 	ar := gin.New()
 	ar.LoadHTMLGlob("templates/*")
-	ar.GET("/", func(c *gin.Context) {
+	ar.GET("/status", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "status.tmpl", gin.H{
 			"title": "Gethinx status page",
 		})

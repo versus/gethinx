@@ -27,9 +27,9 @@
 
     <main role="main" class="container">
 
-      <h1>Section title</h1>
+      <h1>LastBlock is   <span id="averageBlock"> NaN </span></h1>
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover" id="tableUpstream">
               <thead thead-light>
                 <tr>
                   <th>#</th>
@@ -85,13 +85,19 @@
           c = new WebSocket(url);
 
           send = function(data){
-            $("#output").append((new Date())+ " ==> "+data+"\n")
             c.send(data)
           }
 
           c.onmessage = function(msg){
-            $("#output").append((new Date())+ " <== "+msg.data+"\n")
-            console.log(msg)
+          var obj = jQuery.parseJSON(msg.data);
+            $("#output").append((new Date()) +" "+obj.upstreams[0]+"\n")
+            $("#averageBlock").text(obj.LastBlockAverage)
+            var dataArray = [];
+            obj.upstreams.forEach(function (item, index, array) {
+                var upstream = jQuery.parseJSON(item)
+                
+                console.log(upstream.status);
+            });
           }
 
           c.onopen = function(){

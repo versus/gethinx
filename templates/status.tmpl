@@ -29,17 +29,17 @@
 
       <h1>LastBlock is   <span id="averageBlock"> NaN </span></h1>
         <div class="table-responsive">
-            <table class="table table-striped table-hover" id="tableUpstream">
+            <table class="table table-striped table-hover">
               <thead thead-light>
                 <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
+                  <th>Status</th>
+                  <th>Hostname</th>
+                  <th>LastBlock</th>
+                  <th>Weight</th>
+                  <th>LastUpdate</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="tableUpstream">
                 <tr>
                   <td><i class="material-icons">cloud_done</i></td>
                   <td>Lorem</td>
@@ -81,6 +81,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
         <script>
+        $("#tableUpstream").empty();
           url = '{{ .ws_server }}';
           c = new WebSocket(url);
 
@@ -92,11 +93,30 @@
           var obj = jQuery.parseJSON(msg.data);
             $("#output").append((new Date()) +" "+obj.upstreams[0]+"\n")
             $("#averageBlock").text(obj.LastBlockAverage)
-            var dataArray = [];
+            $("#tableUpstream").empty();
             obj.upstreams.forEach(function (item, index, array) {
                 var upstream = jQuery.parseJSON(item)
-                
-                console.log(upstream.status);
+                var status_img = ""
+                switch (upstream.status){
+                    case "active":
+                        status_img = "cloud_done"
+                        break;
+                    case "suspend":
+                        status_img = "cloud_queue"
+                        break;
+                    default:
+                        status_img = "cloud_off"
+                }
+                //console.log(status_img);
+                var row = $("<tr>")
+                    row.append($("<td><i class=\"material-icons\">" + status_img + "</i></td>"));
+                    row.append($("<td>" + upstream.hostname + "</td>"));
+                    row.append($("<td>" + upstream.digblock + "</td>"));
+                    row.append($("<td>" + upstream.weight + "</td>"));
+                    row.append($("<td>" + upstream.lastupdate + "</td>"));
+                    row.append($("</tr>"));
+                    $("#tableUpstream").append(row);
+
             });
           }
 

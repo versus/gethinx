@@ -5,17 +5,20 @@ adminport = 8080
 suspend = 30 # время в секундах  за которое должен обновится бекенд прежде чем считатся не активным
 
 [[servers]]
+hostname = "node01.versus.dev"
 ip = "127.0.0.1"
 port = "8181"
 weight = 5
 token = "Q!@W#E$R%T^Y"
 
 [[servers]]
+hostname = "node02.versus.dev"
 ip = "127.0.0.1"
 port = "8080"
 token = "XDZSCFVGBH"
 
 [[servers]]
+hostname = "node03.versus.dev"
 ip = "127.0.0.1"
 port = "8282"
 token = "weuyroiwuqyr"

@@ -76,7 +76,7 @@ func initBackendServers() {
 
 	backends = make(map[string]scheduler.Upstream, len(conf.Servers))
 	for _, srvValue := range conf.Servers {
-		backends[srvValue.Token] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token)
+		backends[srvValue.Token] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token, srvValue.Hostname)
 		log.Println("add server  with ", backends[srvValue.Token].Target)
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()

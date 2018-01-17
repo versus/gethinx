@@ -27,6 +27,7 @@ type Upstream struct {
 	Weight       uint8      `json:"weight"`
 	Backup       bool       `json:"-"`
 	Host         string     `json:"-"`
+	Hostname     string     `json:"hostname"`
 	Target       string     `json:"url"`
 	Token        string     `json:"-"`
 	LastBlock    int64      `json:"digblock"`
@@ -38,7 +39,7 @@ type Upstream struct {
 }
 
 // NewUpstream is constructor for Upstream
-func NewUpstream(host string, port string, weight int, token string) *Upstream {
+func NewUpstream(host string, port string, weight int, token string, hostname string) *Upstream {
 
 	uintPort, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
@@ -76,6 +77,7 @@ func NewUpstream(host string, port string, weight int, token string) *Upstream {
 		Port:       uint16(uintPort),
 		Weight:     uint8(weight),
 		Token:      token,
+		Hostname:   hostname,
 		TimeUpdate: time.Now().Unix(),
 	}
 

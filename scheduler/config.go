@@ -10,9 +10,10 @@ type Config struct {
 }
 
 type server struct {
-	IP     string
-	Port   string
-	Weight int
-	Backup bool
-	Token  string
+	Hostname string
+	IP       string
+	Port     string
+	Weight   int
+	Backup   bool
+	Token    string
 }

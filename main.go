@@ -39,6 +39,7 @@ func main() {
 
 	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
 	addrAdmin := fmt.Sprintf("%s:%d", conf.Bind, conf.AdminPort)
+	wsAdmin := fmt.Sprintf("ws://%s/ws", addrAdmin)
 
 	initBackendServers()
 	GenerateLastBlockAverage()
@@ -52,9 +53,11 @@ func main() {
 
 	ar.GET("/status", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "status.tmpl", gin.H{
-			"title": "Gethinx status page",
+			"title":     "Gethinx status page",
+			"ws_server": wsAdmin,
 		})
 	})
+	ar.GET("/ws", webSocketAdmin)
 	ar.GET("/api/v1/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",

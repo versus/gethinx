@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getStatus(c *gin.Context) {
+func JsonBackends() []string {
 	var backendsServerList []string
 	for _, server := range backends {
 		jsrv, err := json.Marshal(server)
@@ -18,6 +18,12 @@ func getStatus(c *gin.Context) {
 		}
 		backendsServerList = append(backendsServerList, string(jsrv))
 	}
+	return backendsServerList
+}
+
+func getStatus(c *gin.Context) {
+
+	backendsServerList := JsonBackends()
 	c.JSON(200, gin.H{
 		"ServerList":       backendsServerList,
 		"LastBlockAverage": atomic.LoadInt64(&LastBlock.Dig),

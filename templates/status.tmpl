@@ -84,6 +84,8 @@
         $("#tableUpstream").empty();
           url = '{{ .ws_server }}';
           c = new WebSocket(url);
+          var aa = []
+          var map = new Object();
 
           send = function(data){
             c.send(data)
@@ -91,11 +93,13 @@
 
           c.onmessage = function(msg){
           var obj = jQuery.parseJSON(msg.data);
-            $("#output").append((new Date()) +" "+obj.upstreams[0]+"\n")
+
             $("#averageBlock").text(obj.LastBlockAverage)
             $("#tableUpstream").empty();
+
             obj.upstreams.forEach(function (item, index, array) {
                 var upstream = jQuery.parseJSON(item)
+
                 var status_img = ""
                 switch (upstream.status){
                     case "active":
@@ -108,6 +112,10 @@
                         status_img = "cloud_off"
                 }
                 //console.log(status_img);
+                if (aa.indexOf(upstream.hostname) == -1) {
+                    aa.push(upstream.hostname)
+                }
+
                 var row = $("<tr>")
                     row.append($("<td><i class=\"material-icons\">" + status_img + "</i></td>"));
                     row.append($("<td>" + upstream.hostname + "</td>"));
@@ -115,12 +123,19 @@
                     row.append($("<td>" + upstream.weight + "</td>"));
                     row.append($("<td>" + upstream.lastupdate + "</td>"));
                     row.append($("</tr>"));
-                    $("#tableUpstream").append(row);
+                    map[upstream.hostname] = row
+
 
             });
-          }
+            $("#output").append((new Date()) +" "+aa+"\n")
+            aa.forEach(function (item, index, array) {
+                $("#tableUpstream").append(map[item]);
+            });
+            }
+
 
           c.onopen = function(){
+            send("status")
             setInterval(
               function(){ send("status") }
             , 10000 )

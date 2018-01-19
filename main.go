@@ -14,6 +14,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
+	"os"
+	"syscall"
+	"os/signal"
 )
 
 const (
@@ -49,6 +52,14 @@ func main() {
 	if err != nil {
 		log.Fatal("Listen error: /tmp/gethinx.sock ", err.Error())
 	}
+
+	sigc := make(chan os.Signal, 1)
+	signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
+	go func(ln net.Listener, c chan os.Signal) {
+		sig := <-c
+		log.Printf("Caught signal %s: shutting down.", sig)
+		ln.Close()
+	}(ln, sigc)
 
 	go StartSocketServer(ln)
 

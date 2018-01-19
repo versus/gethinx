@@ -2,9 +2,9 @@ package scheduler
 
 // Config is struct for config.toml file
 type Config struct {
-	Port      int
+	Port      string
 	Bind      string
-	AdminPort int
+	AdminPort string
 	Suspend   int
 	Servers   []server
 }

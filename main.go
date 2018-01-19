@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/BurntSushi/toml"
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
@@ -28,6 +29,11 @@ func main() {
 	//TODO: create flag to reload config only
 	//TODO: флаг работы без агента (замедление работы с новыми блоками!!!!)
 	//TODO: create socket for client command
+	var (
+		addr      string
+		addrAdmin string
+	)
+
 	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
 	flag.Parse()
 
@@ -37,8 +43,18 @@ func main() {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 
-	addr := fmt.Sprintf("%s:%d", conf.Bind, conf.Port)
-	addrAdmin := fmt.Sprintf("%s:%d", conf.Bind, conf.AdminPort)
+	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
+		addr = fmt.Sprintf("%s:%s", conf.Bind, conf.Port)
+	} else {
+		log.Fatalln("Error bind or port in config file")
+	}
+
+	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
+		addrAdmin = fmt.Sprintf("%s:%s", conf.Bind, conf.AdminPort)
+	} else {
+		log.Fatalln("Error bind or admin port in config file")
+	}
+
 	wsAdmin := fmt.Sprintf("ws://%s/ws", addrAdmin)
 
 	initBackendServers()

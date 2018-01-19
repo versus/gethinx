@@ -15,7 +15,6 @@ import (
 
 func setBlock(c *gin.Context) {
 	//TODO: проблема доверия к агенту, возможно надо менять токены  при каждом запросе!!!
-	//TODO: Возможно надо создать канал для входящих запросов и увести функцию в горутину
 	var agethBlock scheduler.EthBlock
 	myreq := lib.ReadRequestBody(c.Request.Body)
 	c.Request.Body = myreq.Request

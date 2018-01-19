@@ -7,6 +7,8 @@ import (
 
 	"net/http"
 
+	"net"
+
 	"github.com/BurntSushi/toml"
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -43,6 +45,13 @@ func main() {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 
+	ln, err := net.Listen("unix", "/tmp/gethinx.sock")
+	if err != nil {
+		log.Fatal("Listen error: /tmp/gethinx.sock ", err.Error())
+	}
+
+	go StartSocketServer(ln)
+
 	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
 		addr = fmt.Sprintf("%s:%s", conf.Bind, conf.Port)
 	} else {
@@ -64,8 +73,6 @@ func main() {
 
 	ar := gin.New()
 	ar.LoadHTMLGlob("templates/*")
-
-	//http://arlimus.github.io/articles/gin.and.gorilla/
 
 	ar.GET("/status", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "status.tmpl", gin.H{
@@ -94,7 +101,7 @@ func main() {
 
 	router.POST("/", reverseProxy)
 
-	err := router.Run(addr)
+	err = router.Run(addr)
 	if err != nil {
 		log.Println("Error run gin router: ", err.Error())
 	}

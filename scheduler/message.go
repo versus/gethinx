@@ -26,7 +26,6 @@ type jsonError struct {
 
 // GetStringParams return index string from params field of request
 func (req JSONRPCMessage) GetStringParams(index int) (string, error) {
-	//TODO: check is null
 	var ret string
 	var err error
 	if index < len(req.Params) {

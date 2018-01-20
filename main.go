@@ -9,14 +9,16 @@ import (
 
 	"net"
 
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/BurntSushi/toml"
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx/cli"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
-	"os"
-	"syscall"
-	"os/signal"
 )
 
 const (
@@ -25,9 +27,10 @@ const (
 )
 
 var (
-	LastBlock scheduler.EthBlock
-	conf      scheduler.Config
-	backends  map[string]scheduler.Upstream
+	LastBlock      scheduler.EthBlock
+	conf           scheduler.Config
+	backends       map[string]scheduler.Upstream
+	flagConfigFile *string
 )
 
 func main() {
@@ -39,7 +42,8 @@ func main() {
 		addrAdmin string
 	)
 
-	flagConfigFile := flag.String("c", "./config.toml", "config: path to config file")
+	flagConfigFile = flag.String("c", "./config.toml", "config: path to config file")
+	reloadPtr := flag.Bool("reload", false, "cli: reload config file")
 	flag.Parse()
 
 	log.Println("gethinx ", Version, Author)
@@ -48,9 +52,13 @@ func main() {
 		log.Fatalln("Error parse config.toml", err.Error())
 	}
 
-	ln, err := net.Listen("unix", "/tmp/gethinx.sock")
+	if *reloadPtr {
+		cli.SocketCli(*reloadPtr, &conf)
+		os.Exit(0)
+	}
+	ln, err := net.Listen("unix", conf.SocketPath)
 	if err != nil {
-		log.Fatal("Listen error: /tmp/gethinx.sock ", err.Error())
+		log.Fatal("Listen error: ", conf.SocketPath, err.Error())
 	}
 
 	sigc := make(chan os.Signal, 1)

@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/scheduler"
 )
@@ -69,12 +70,29 @@ func checkAlive() {
 	GenerateLastBlockAverage()
 }
 
+func ReloadBackendServers(configFile *string) {
+	if _, err := toml.DecodeFile(*configFile, &conf); err != nil {
+		log.Fatalln("Error parse config.toml", err.Error())
+	}
+	log.Println("add server  with ", len(conf.Servers))
+	for k := range backends {
+		delete(backends, k)
+	}
+	generatorBackend()
+
+}
+
 func initBackendServers() {
 	if len(conf.Servers) == 0 {
 		log.Fatalln("Servers for backend is not defined")
 	}
 
 	backends = make(map[string]scheduler.Upstream, len(conf.Servers))
+	generatorBackend()
+
+}
+
+func generatorBackend() {
 	for _, srvValue := range conf.Servers {
 		backends[srvValue.Token] = *scheduler.NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token, srvValue.Hostname)
 		log.Println("add server  with ", backends[srvValue.Token].Target)

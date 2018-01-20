@@ -16,6 +16,10 @@ func RequestSocketServer(c net.Conn) {
 
 		data := buf[0:nr]
 		log.Println("Server got:", string(data))
+		if string(data) == "reload" {
+			ReloadBackendServers(flagConfigFile)
+			data = []byte("server was reloaded")
+		}
 		_, err = c.Write(data)
 		if err != nil {
 			log.Println("Writing client error: ", err)

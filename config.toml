@@ -2,6 +2,8 @@ bind ="127.0.0.1"
 port = "8545"
 adminport = "8080"
 
+socketpath = "/tmp/gethinx.sock"
+
 suspend = 30 # время в секундах  за которое должен обновится бекенд прежде чем считатся не активным
 
 [[servers]]
@@ -22,3 +24,4 @@ hostname = "node03.versus.dev"
 ip = "127.0.0.1"
 port = "8282"
 token = "weuyroiwuqyr"
+

@@ -1,10 +1,12 @@
-package main
+package cli
 
 import (
 	"io"
 	"log"
 	"net"
 	"time"
+
+	"github.com/versus/gethinx/scheduler"
 )
 
 func reader(r io.Reader) {
@@ -14,26 +16,23 @@ func reader(r io.Reader) {
 		if err != nil {
 			return
 		}
-		println("Client got:", string(buf[0:n]))
+		log.Println("Client got:", string(buf[0:n]))
 	}
 }
 
-func main() {
-	c, err := net.Dial("unix", "/tmp/gethinx.sock")
+func SocketCli(reload bool, config *scheduler.Config) {
+	c, err := net.Dial("unix", config.SocketPath)
 	if err != nil {
 		log.Fatal("Dial error", err)
 	}
 	defer c.Close()
 
 	go reader(c)
-	for {
-		msg := "hi"
-		_, err := c.Write([]byte(msg))
+	if reload {
+		_, err := c.Write([]byte("reload"))
 		if err != nil {
 			log.Fatal("Write error:", err)
-			break
 		}
-		println("Client sent:", msg)
-		time.Sleep(1e9)
+		time.Sleep(5 * time.Second)
 	}
 }

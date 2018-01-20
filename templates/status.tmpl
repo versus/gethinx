@@ -84,14 +84,13 @@
         $("#tableUpstream").empty();
           url = '{{ .ws_server }}';
           c = new WebSocket(url);
-          var aa = []
-          var map = new Object();
-
           send = function(data){
             c.send(data)
           }
 
           c.onmessage = function(msg){
+          var map = new Object();
+          var aa = []
           var obj = jQuery.parseJSON(msg.data);
 
             $("#averageBlock").text(obj.LastBlockAverage)

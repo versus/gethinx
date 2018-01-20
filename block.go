@@ -25,14 +25,12 @@ func setBlock(c *gin.Context) {
 	}
 
 	srv := backends[agethBlock.Token]
-	srv.Mutex.Lock()
 	LastBlock.Mutex.RLock()
 	srv.LastBlock = agethBlock.Dig
 	srv.HexLastBlock = lib.I2H(agethBlock.Dig)
 	srv.TimeUpdate = time.Now().Unix()
 	srv.FSM.Event("up")
 	LastBlock.Mutex.RUnlock()
-	srv.Mutex.Unlock()
 	backends[agethBlock.Token] = srv
 	GenerateLastBlockAverage()
 

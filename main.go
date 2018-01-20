@@ -34,9 +34,7 @@ var (
 )
 
 func main() {
-	//TODO: create flag to reload config only
 	//TODO: флаг работы без агента (замедление работы с новыми блоками!!!!)
-	//TODO: create socket for client command
 	var (
 		addr      string
 		addrAdmin string

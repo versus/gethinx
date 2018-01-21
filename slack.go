@@ -11,14 +11,24 @@ import (
 	"sync/atomic"
 
 	"github.com/nlopes/slack"
+
+	"github.com/xlab/tablewriter"
 )
 
 func statusMsg(api *slack.Client, channel string) {
+
+	table := tablewriter.CreateTable()
+
+	table.AddHeaders("Name", "Age")
+	table.AddRow("John", "30")
+	table.AddRow("Sam", 18)
+	table.AddRow("Julie", 20.14)
+
 	channels := []string{channel}
 	params := slack.FileUploadParameters{
 		Title:    "",
 		Filetype: "txt",
-		Content:  "kglkds;lgfk;flgkl;dfg ds",
+		Content:  table.Render(),
 		Channels: channels,
 	}
 	_, err := api.UploadFile(params)
@@ -26,6 +36,7 @@ func statusMsg(api *slack.Client, channel string) {
 		fmt.Printf("%s\n", err)
 		return
 	}
+
 }
 
 func StartSlackBot() {
@@ -68,12 +79,6 @@ func StartSlackBot() {
 
 			}
 
-		case *slack.PresenceChangeEvent:
-			//fmt.Printf("Presence Change: %v\n", ev)
-
-		case *slack.LatencyReport:
-			//fmt.Printf("Current latency: %v\n", ev.Value)
-
 		case *slack.RTMError:
 			log.Println("Error:", ev.Error())
 
@@ -82,7 +87,7 @@ func StartSlackBot() {
 			return
 
 		default:
-			log.Println("Unexpected: ", msg.Data)
+			//log.Println("Unexpected: ", msg.Data)
 		}
 	}
 

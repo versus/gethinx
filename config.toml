@@ -11,6 +11,10 @@ use = true
 token = "xoxb-678678678-JHITYUYFJHJFUSSPEK"
 channel = "C97988998789" #global
 
+[telegram]
+use = true
+token ="kjhlkhlhlkhlkh"
+
 [[servers]]
 hostname = "node01.versus.dev"
 ip = "127.0.0.1"

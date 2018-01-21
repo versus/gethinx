@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	Version = "v0.0.1"
+	Version = "v0.0.3"
 	Author  = " by Valentyn Nastenko [versus.dev@gmail.com]"
 )
 
@@ -68,10 +68,13 @@ func main() {
 	}(ln, sigc)
 
 	go StartSocketServer(ln)
+
 	if conf.Slack.Use {
 		go StartSlackBot()
 	}
-
+	if conf.Telegram.Use {
+		go StartTelegramBot()
+	}
 	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
 		addr = fmt.Sprintf("%s:%s", conf.Bind, conf.Port)
 	} else {

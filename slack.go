@@ -58,7 +58,8 @@ func StartSlackBot() {
 			if user != nil {
 				if user.IsBot == false {
 					message := ev.Msg.Text
-					rtm.SendMessage(rtm.NewOutgoingMessage("@"+user.Name+" "+ev.Msg.Text, ev.Msg.Channel))
+					//TODO: add reload and update commands
+					//rtm.SendMessage(rtm.NewOutgoingMessage("@"+user.Name+" "+ev.Msg.Text, ev.Msg.Channel))
 					if strings.Contains(message, "status") {
 						statusMsg(api, ev.Msg.Channel)
 					}

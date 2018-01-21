@@ -8,7 +8,13 @@ type Config struct {
 	Suspend    int
 	SocketPath string
 	Slack      slackConfig
+	Telegram   telegramConfig
 	Servers    []server
+}
+
+type telegramConfig struct {
+	Use   bool
+	Token string
 }
 
 type slackConfig struct {

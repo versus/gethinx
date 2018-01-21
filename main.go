@@ -41,7 +41,7 @@ func main() {
 	)
 
 	flagConfigFile = flag.String("c", "./config.toml", "config: path to config file")
-	reloadPtr := flag.Bool("reload", false, "cli: reload config file")
+	reloadPtr := flag.Bool("reload", false, "cli: reload only list of servers from config file")
 	flag.Parse()
 
 	log.Println("gethinx ", Version, Author)

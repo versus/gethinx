@@ -41,9 +41,6 @@ func StartSlackBot() {
 
 	for msg := range rtm.IncomingEvents {
 		switch ev := msg.Data.(type) {
-		case *slack.HelloEvent:
-			log.Println("Message: ", ev)
-			// Ignore hello
 
 		case *slack.ConnectedEvent:
 			log.Println("Message: ", ev)

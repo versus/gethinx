@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"log"
 
-	"time"
-
 	"fmt"
+
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xlab/tablewriter"
@@ -43,6 +43,6 @@ func GetStatusTable() string {
 	for _, server := range backends {
 		table.AddRow(server.FSM.Current(), server.Hostname, server.LastBlock, server.Weight, time.Unix(server.TimeUpdate, 0).Format(time.RFC3339))
 	}
-	return str + table.Render()
 
+	return str + table.Render()
 }

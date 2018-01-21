@@ -6,7 +6,12 @@ import (
 	"encoding/json"
 	"log"
 
+	"time"
+
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/xlab/tablewriter"
 )
 
 func JsonBackends() []string {
@@ -28,4 +33,16 @@ func getStatus(c *gin.Context) {
 		"ServerList":       backendsServerList,
 		"LastBlockAverage": atomic.LoadInt64(&LastBlock.Dig),
 	})
+}
+
+func GetStatusTable() string {
+	str := fmt.Sprintln("\nAverage LastBlock ", atomic.LoadInt64(&LastBlock.Dig), "\n")
+	table := tablewriter.CreateTable()
+
+	table.AddHeaders("Status", "Hostname", "LastBlock", "Weight", "LastUpdate")
+	for _, server := range backends {
+		table.AddRow(server.FSM.Current(), server.Hostname, server.LastBlock, server.Weight, time.Unix(server.TimeUpdate, 0).Format(time.RFC3339))
+	}
+	return str + table.Render()
+
 }

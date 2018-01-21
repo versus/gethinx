@@ -120,7 +120,7 @@
                     row.append($("<td>" + upstream.hostname + "</td>"));
                     row.append($("<td>" + upstream.digblock + "</td>"));
                     row.append($("<td>" + upstream.weight + "</td>"));
-                    row.append($("<td>" + upstream.lastupdate + "</td>"));
+                    row.append($("<td>" + timeConverter(upstream.lastupdate) + "</td>"));
                     row.append($("</tr>"));
                     map[upstream.hostname] = row
 
@@ -139,6 +139,36 @@
               function(){ send("status") }
             , 10000 )
           }
+
+
+
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp * 1000);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  if(date < 9) {
+      date = "0"+date
+  }
+  if(hour < 9) {
+      hour = "0"+hour
+  }
+  if(min < 9) {
+        min = "0"+min
+  }
+  if(sec < 9) {
+        sec = "0"+sec
+  }
+  var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+
+
         </script>
 </body>
 </html>

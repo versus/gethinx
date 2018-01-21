@@ -11,24 +11,15 @@ import (
 	"sync/atomic"
 
 	"github.com/nlopes/slack"
-
-	"github.com/xlab/tablewriter"
 )
 
 func statusMsg(api *slack.Client, channel string) {
 
-	table := tablewriter.CreateTable()
-
-	table.AddHeaders("Name", "Age")
-	table.AddRow("John", "30")
-	table.AddRow("Sam", 18)
-	table.AddRow("Julie", 20.14)
-
 	channels := []string{channel}
 	params := slack.FileUploadParameters{
-		Title:    "",
+		Title:    "Status Gethinx",
 		Filetype: "txt",
-		Content:  table.Render(),
+		Content:  GetStatusTable(),
 		Channels: channels,
 	}
 	_, err := api.UploadFile(params)

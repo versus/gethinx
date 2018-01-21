@@ -6,6 +6,12 @@ socketpath = "/tmp/gethinx.sock"
 
 suspend = 30 # время в секундах  за которое должен обновится бекенд прежде чем считатся не активным
 
+
+[slack]
+use = true
+token = "xoxb-203656384148-tUVsznxcPEWvRkRSiVFi9TxZ"
+channel = "C5Z12E789" #global
+
 [[servers]]
 hostname = "node01.versus.dev"
 ip = "127.0.0.1"

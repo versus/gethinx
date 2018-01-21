@@ -68,6 +68,9 @@ func main() {
 	}(ln, sigc)
 
 	go StartSocketServer(ln)
+	if conf.Slack.Use {
+		go StartSlackBot()
+	}
 
 	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
 		addr = fmt.Sprintf("%s:%s", conf.Bind, conf.Port)

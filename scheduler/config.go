@@ -7,7 +7,14 @@ type Config struct {
 	AdminPort  string
 	Suspend    int
 	SocketPath string
+	Slack      slackConfig
 	Servers    []server
+}
+
+type slackConfig struct {
+	Use     bool
+	Token   string
+	Channel string
 }
 
 type server struct {

@@ -63,7 +63,7 @@ func checkAlive() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	for key, srv := range backends {
-		srv.GetTargetLastBlock(ctx)
+		srv.GetTargetLastBlock(ctx, &LastBlock)
 		log.Println("checkAlive: ", srv.Target, " is ", srv.FSM.Current())
 		backends[key] = srv
 	}
@@ -99,7 +99,7 @@ func generatorBackend() {
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		target := backends[srvValue.Token]
-		target.GetTargetLastBlock(ctx)
+		target.GetTargetLastBlock(ctx, &LastBlock)
 		backends[srvValue.Token] = target
 	}
 

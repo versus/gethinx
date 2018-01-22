@@ -15,6 +15,8 @@ import (
 
 	"sync"
 
+	"sync/atomic"
+
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/looplab/fsm"
 	"github.com/versus/gethinx/lib"
@@ -97,7 +99,7 @@ func NewUpstream(host string, port string, weight int, token string, hostname st
 	return upstream
 }
 
-func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
+func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) {
 
 	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
 	conn, err := ethclient.Dial(addr)
@@ -126,27 +128,24 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context) {
 		u.Mutex.Lock()
 		u.LastBlock = bint.Int64()
 		u.HexLastBlock = lib.I2H(u.LastBlock)
-		u.Mutex.Unlock()
-
-		if u.FSM.Current() == "down" {
-			u.FSM.Event("up")
-		}
-		if u.FSM.Current() == "suspend" {
-			u.FSM.Event("up")
+		if u.LastBlock >= atomic.LoadInt64(&LastBlock.Dig) {
+			if u.FSM.Current() == "down" {
+				u.FSM.Event("up")
+			}
+			if u.FSM.Current() == "suspend" {
+				u.FSM.Event("up")
+			}
 		}
 		log.Println(u.Target, " is ", u.FSM.Current())
 	} else {
-		u.Mutex.Lock()
 		u.LastBlock = 0
 		u.HexLastBlock = lib.I2H(0)
-		u.Mutex.Unlock()
 		if u.FSM.Current() == "up" {
 			if err = u.FSM.Event("suspend"); err != nil {
 				log.Println("error change  state FSM to  Down: ", err.Error())
 			}
 		}
 	}
-	u.Mutex.Lock()
 	u.RealState = u.FSM.Current()
 	u.TimeUpdate = time.Now().Unix()
 	u.Mutex.Unlock()

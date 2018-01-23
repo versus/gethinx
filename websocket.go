@@ -18,8 +18,9 @@ var wsupgrader = websocket.Upgrader{
 }
 
 type WSStatusResponse struct {
-	LastBlockAverage int64    `json:lastblock`
-	Upstream         []string `json:"upstreams"`
+	LastBlockAverage           int64
+	LastBlockAverageTimeUpdate int64    `json:"lastupdate"`
+	Upstream                   []string `json:"upstreams"`
 }
 
 func webSocketAdmin(c *gin.Context) {

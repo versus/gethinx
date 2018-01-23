@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 
 	"strings"
@@ -12,8 +13,6 @@ import (
 	"fmt"
 
 	"context"
-
-	"sync"
 
 	"sync/atomic"
 
@@ -134,6 +133,10 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 			}
 			if u.FSM.Current() == "suspend" {
 				u.FSM.Event("up")
+			}
+		} else {
+			if u.FSM.Current() == "down" {
+				u.FSM.Event("suspend")
 			}
 		}
 		log.Println(u.Target, " is ", u.FSM.Current())

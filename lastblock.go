@@ -27,6 +27,7 @@ func GenerateLastBlockAverage() {
 	LastBlock.Mutex.Lock()
 	LastBlock.Dig = average
 	LastBlock.Hex = lib.I2H(average)
+	LastBlock.TimeUpdate = time.Now().Unix()
 	LastBlock.Mutex.Unlock()
 }
 

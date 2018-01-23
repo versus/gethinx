@@ -6,17 +6,9 @@ import (
 	"log"
 	"math/rand"
 	"net/url"
-	"sync"
 	"sync/atomic"
 	"time"
 )
-
-type EthBlock struct {
-	Dig   int64 `json:"block"`
-	Hex   string
-	Token string `json:"token"`
-	Mutex sync.RWMutex
-}
 
 func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBlock) (*url.URL, error) {
 

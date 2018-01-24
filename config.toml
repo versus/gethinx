@@ -5,6 +5,7 @@ adminport = "8080"
 socketpath = "/tmp/gethinx.sock"
 
 suspend = 30 # время в секундах  за которое должен обновится бекенд прежде чем считатся не активным
+key      = "7f81c777667e559204b2794a846976b39cfe8248c5f62da5aa977926d8a42349"
 
 [slack]
 use = true

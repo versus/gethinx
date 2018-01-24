@@ -19,8 +19,8 @@ func I2H(i int64) string {
 }
 
 // Key return random string
-func Key() string {
-	buf := make([]byte, 16)
+func Key(key int) string {
+	buf := make([]byte, key)
 	_, err := rand.Read(buf)
 	if err != nil {
 		panic(err) // out of randomness, should never happen

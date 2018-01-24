@@ -17,6 +17,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/cli"
+	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
 )
@@ -41,10 +42,16 @@ func main() {
 	)
 
 	flagConfigFile = flag.String("c", "./config.toml", "config: path to config file")
+	gnrAccKey := flag.Bool("genkey", false, "config: generate access key for agents")
 	reloadPtr := flag.Bool("reload", false, "cli: reload only list of servers from config file")
 	flag.Parse()
 
 	log.Println("gethinx ", Version, Author)
+
+	if *gnrAccKey {
+		fmt.Println("Acces Key is ", lib.Key(32))
+		os.Exit(0)
+	}
 
 	if _, err := toml.DecodeFile(*flagConfigFile, &conf); err != nil {
 		log.Fatalln("Error parse config.toml", err.Error())

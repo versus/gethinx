@@ -49,7 +49,7 @@ func main() {
 	log.Println("gethinx ", Version, Author)
 
 	if *gnrAccKey {
-		fmt.Println("Acces Key is ", lib.Key(32))
+		fmt.Println("Access Key is ", lib.Key(32))
 		os.Exit(0)
 	}
 

@@ -84,20 +84,23 @@
         $("#tableUpstream").empty();
           url = '{{ .ws_server }}';
           c = new WebSocket(url);
+          aa = []
           send = function(data){
             c.send(data)
           }
 
           c.onmessage = function(msg){
           var map = new Object();
-          var aa = []
           var obj = jQuery.parseJSON(msg.data);
 
             $("#averageBlock").text(obj.LastBlockAverage)
-            $("#tableUpstream").empty();
+
 
             obj.upstreams.forEach(function (item, index, array) {
                 var upstream = jQuery.parseJSON(item)
+                if (aa.indexOf(upstream.hostname) == -1) {
+                  aa.push(upstream.hostname)
+                }
 
                 var status_img = ""
                 switch (upstream.status){
@@ -111,9 +114,6 @@
                         status_img = "cloud_off"
                 }
                 //console.log(status_img);
-                if (aa.indexOf(upstream.hostname) == -1) {
-                    aa.push(upstream.hostname)
-                }
 
                 var row = $("<tr>")
                     row.append($("<td><i class=\"material-icons\">" + status_img + "</i></td>"));
@@ -126,7 +126,8 @@
 
 
             });
-            //$("#output").append((new Date()) +" "+aa+"\n")
+            $("#output").append((new Date()) +" "+aa+"\n")
+            $("#tableUpstream").empty();
             aa.forEach(function (item, index, array) {
                 $("#tableUpstream").append(map[item]);
             });

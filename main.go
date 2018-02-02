@@ -117,7 +117,6 @@ func main() {
 		})
 	})
 	ar.POST("/api/v1/newblock", setBlock)
-	ar.POST("/api/v1/auth", AuthAgent)
 	ar.GET("/api/v1/status", getStatus)
 	go func() {
 		err := ar.Run(addrAdmin)

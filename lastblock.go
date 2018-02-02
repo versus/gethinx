@@ -32,14 +32,13 @@ func GenerateLastBlockAverage() {
 }
 
 func AgentTickerUpstream() {
-	tick := time.Tick(time.Second * 10)
+	log.Println(conf.Ticker)
+	tick := time.Tick(time.Second * time.Duration(conf.Ticker))
 	for {
 		select {
 		case <-tick:
-			alive := 0
 			for key, srv := range backends {
 				if srv.FSM.Current() == "active" {
-					alive++
 					lastTimeUpdate := time.Unix(srv.TimeUpdate, 0)
 					now := time.Now()
 					diff := now.Sub(lastTimeUpdate)
@@ -52,9 +51,7 @@ func AgentTickerUpstream() {
 					backends[key] = srv
 				}
 			}
-			if alive == 0 {
-				checkAlive()
-			}
+			checkAlive()
 
 		}
 	}

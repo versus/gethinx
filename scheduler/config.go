@@ -6,6 +6,7 @@ type Config struct {
 	Bind       string
 	AdminPort  string
 	Suspend    int
+	Ticker     int
 	SocketPath string
 	Slack      slackConfig
 	Telegram   telegramConfig

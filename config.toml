@@ -1,4 +1,4 @@
-bind ="127.0.0.1"
+bind ="10.55.24.68"
 port = "8545"
 adminport = "8080"
 
@@ -19,8 +19,8 @@ token ="kjhlkhlhlkhlkh"
 
 [[servers]]
 hostname = "node01.versus.dev"
-ip = "127.0.0.1"
-port = "8181"
+ip = "10.55.24.247"
+port = "8282"
 weight = 5
 token = "Q!@W#E$R%T^Y"
 

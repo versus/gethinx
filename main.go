@@ -37,6 +37,7 @@ var (
 func init() {
 	prometheus.MustRegister(monitoring.PromResponse)
 	prometheus.MustRegister(monitoring.PromRequest)
+	prometheus.MustRegister(monitoring.PromLastBlock)
 }
 
 func main() {

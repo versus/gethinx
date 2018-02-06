@@ -5,9 +5,9 @@ import "github.com/prometheus/client_golang/prometheus"
 //TODO:  добавить метрики прометеуса https://stackoverflow.com/questions/37611754/how-to-push-metrics-to-prometheus-using-client-golang
 
 var (
-	CpuTemp = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "cpu_temperature_celsius",
-		Help: "Current temperature of the CPU.",
+	PromLastBlock = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "eth_lastblock_average",
+		Help: "Current LastBlock from gethinx.",
 	})
 	PromRequest = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "eth_request_total",

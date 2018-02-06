@@ -7,6 +7,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/versus/gethinx/lib"
+	"github.com/versus/gethinx/monitoring"
 	"github.com/versus/gethinx/scheduler"
 )
 
@@ -28,7 +29,9 @@ func GenerateLastBlockAverage() {
 	LastBlock.Dig = average
 	LastBlock.Hex = lib.I2H(average)
 	LastBlock.TimeUpdate = time.Now().Unix()
+	monitoring.PromLastBlock.Set(float64(LastBlock.Dig))
 	LastBlock.Mutex.Unlock()
+
 }
 
 func AgentTickerUpstream() {

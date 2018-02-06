@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx/monitoring"
 )
 
 type bodyLogWriter struct {
@@ -21,6 +22,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 func ResponseLogger(c *gin.Context) {
 	blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: c.Writer}
 	c.Writer = blw
+	monitoring.PromResponse.Inc()
 	c.Next()
 	statusCode := c.Writer.Status()
 	log.Println("Response: ", c.ClientIP(), statusCode, blw.body.String())

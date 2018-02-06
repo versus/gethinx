@@ -19,6 +19,7 @@ import (
 	"github.com/versus/gethinx/cli"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
+	"github.com/versus/gethinx/monitoring"
 	"github.com/versus/gethinx/scheduler"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,6 +36,11 @@ var (
 	backends       map[string]scheduler.Upstream
 	flagConfigFile *string
 )
+
+func init() {
+	prometheus.MustRegister(monitoring.PromResponse)
+	prometheus.MustRegister(monitoring.PromRequest)
+}
 
 func main() {
 
@@ -102,9 +108,6 @@ func main() {
 	GenerateLastBlockAverage()
 
 	go AgentTickerUpstream()
-
-	cpuTemp.Set(65.3)
-	hdFailures.Inc()
 
 	ar := gin.New()
 	ar.LoadHTMLGlob("templates/*")

@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	Version = "v0.0.3"
+	Version = "v0.1.1"
 	Author  = " by Valentyn Nastenko [versus.dev@gmail.com]"
 )
 

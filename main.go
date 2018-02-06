@@ -69,17 +69,22 @@ func main() {
 		cli.SocketCli(*reloadPtr, &conf)
 		os.Exit(0)
 	}
+
+	syscall.Unlink(conf.SocketPath)
+
 	ln, err := net.Listen("unix", conf.SocketPath)
 	if err != nil {
 		log.Fatal("Listen error: ", conf.SocketPath, err.Error())
 	}
 
 	sigc := make(chan os.Signal, 1)
-	signal.Notify(sigc, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(sigc, os.Interrupt, os.Kill, syscall.SIGTERM)
+
 	go func(ln net.Listener, c chan os.Signal) {
 		sig := <-c
 		log.Printf("Caught signal %s: shutting down.", sig)
 		ln.Close()
+		os.Exit(0)
 	}(ln, sigc)
 
 	go StartSocketServer(ln)

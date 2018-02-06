@@ -31,11 +31,9 @@ func StartSocketServer(ln net.Listener) {
 
 	for {
 		fd, err := ln.Accept()
-		if err != nil {
-			log.Println("Accept error: ", err)
+		if err == nil {
+			go RequestSocketServer(fd)
 		}
-
-		go RequestSocketServer(fd)
 	}
 
 }

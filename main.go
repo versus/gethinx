@@ -140,8 +140,8 @@ func main() {
 	router := gin.Default()
 	router.Use(middle.RequestLogger())
 	router.Use(middle.ResponseLogger)
-
-	router.POST("/", reverseProxy)
+	router.Any("/", reverseProxy)
+	//router.POST("/", reverseProxy)
 
 	err = router.Run(addr)
 	if err != nil {

@@ -20,6 +20,8 @@ import (
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/middle"
 	"github.com/versus/gethinx/scheduler"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -35,7 +37,7 @@ var (
 )
 
 func main() {
-	//TODO: флаг работы без агента (замедление работы с новыми блоками!!!!)
+
 	var (
 		addr      string
 		addrAdmin string
@@ -101,6 +103,9 @@ func main() {
 
 	go AgentTickerUpstream()
 
+	cpuTemp.Set(65.3)
+	hdFailures.Inc()
+
 	ar := gin.New()
 	ar.LoadHTMLGlob("templates/*")
 
@@ -118,6 +123,10 @@ func main() {
 	})
 	ar.POST("/api/v1/newblock", setBlock)
 	ar.GET("/api/v1/status", getStatus)
+	ar.GET("/metrics", func(c *gin.Context) {
+		prometheus.Handler().ServeHTTP(c.Writer, c.Request)
+	})
+
 	go func() {
 		err := ar.Run(addrAdmin)
 		if err != nil {

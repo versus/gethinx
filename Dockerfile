@@ -1,4 +1,7 @@
 FROM ubuntu:xenial
+#FROM debian:jessie
+
+
 
 EXPOSE 8080
 EXPOSE 8545

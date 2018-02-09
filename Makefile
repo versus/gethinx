@@ -28,7 +28,6 @@ linux: dist
 
 docker: dist
 	$(call blue, "Building docker image...")
-	docker run --rm -v "${GOPATH}":/gopath -v "$(CURDIR)":/app -e "GOPATH=/gopath" -e "GOPATH=/gopath" -w /app golang:1.9 sh -c 'CGO_ENABLED=1 go build -a --installsuffix cgo --ldflags="-s"    -o ./artefacts/gethinx-linux-x64'
 	docker build -t ${name}:${version} .
 
 clean:

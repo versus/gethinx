@@ -3,3 +3,4 @@
 gethinx-linux-x64
 gethinx-darwin-x64
 config.work.toml
+artefacts/*

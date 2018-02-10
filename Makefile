@@ -17,6 +17,9 @@ dist: clean
 	cp -r ./templates artefacts
 	cp config.toml artefacts/config.toml
 
+build: dist
+	docker run --rm -v "${GOPATH}":/gopath -v "$(CURDIR)":/app -e "GOPATH=/gopath" -e "GOPATH=/gopath" -w /app golang:1.9 sh -c 'go build -a --installsuffix cgo --ldflags="-s"    -o ./artefacts/gethinx-linux-x64'
+
 
 mac: dist
 	$(call blue, "Building MacOS binary...")

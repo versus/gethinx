@@ -37,6 +37,7 @@
                   <th>LastBlock</th>
                   <th>Weight</th>
                   <th>LastUpdate</th>
+                  <th>Response (ms)</th>
                 </tr>
               </thead>
               <tbody id="tableUpstream">
@@ -46,27 +47,7 @@
                   <td>ipsum</td>
                   <td>dolor</td>
                   <td>sit</td>
-                </tr>
-                <tr>
-                  <td><i class="material-icons">cloud_done</i></td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
-                </tr>
-                <tr>
-                  <td><i class="material-icons">cloud_off</i></td>
-                  <td>Integer</td>
-                  <td>nec</td>
-                  <td>odio</td>
-                  <td>Praesent</td>
-                </tr>
-                <tr>
-                  <td><i class="material-icons">cloud_queue</i></td>
-                  <td>libero</td>
-                  <td>Sed</td>
-                  <td>cursus</td>
-                  <td>ante</td>
+                  <td>anum</td>
                 </tr>
               </tbody>
             </table>
@@ -121,12 +102,15 @@
                     row.append($("<td>" + upstream.digblock + "</td>"));
                     row.append($("<td>" + upstream.weight + "</td>"));
                     row.append($("<td>" + timeConverter(upstream.lastupdate) + "</td>"));
+                    row.append($("<td>" + upstream.responsetime + "</td>"));
                     row.append($("</tr>"));
                     map[upstream.hostname] = row
 
 
             });
-            //$("#output").append((new Date()) +" "+aa+"\n")
+
+            //$("#output").append((new Date()) +" "+upstream+"\n")
+
             $("#tableUpstream").empty();
             aa.forEach(function (item, index, array) {
                 $("#tableUpstream").append(map[item]);

@@ -32,6 +32,7 @@ type Upstream struct {
 	Target       string     `json:"url"`
 	Token        string     `json:"-"`
 	LastBlock    int64      `json:"digblock"`
+	ResponseTime int64      `json:"responsetime"`
 	HexLastBlock string     `json:"lastblock"`
 	State        string     `json:"-"`
 	RealState    string     `json:"status"`
@@ -73,13 +74,14 @@ func NewUpstream(host string, port string, weight int, token string, hostname st
 	}
 
 	upstream := &Upstream{
-		Host:       host,
-		Target:     target.String(),
-		Port:       uint16(uintPort),
-		Weight:     uint8(weight),
-		Token:      token,
-		Hostname:   hostname,
-		TimeUpdate: time.Now().Unix(),
+		Host:         host,
+		Target:       target.String(),
+		Port:         uint16(uintPort),
+		Weight:       uint8(weight),
+		Token:        token,
+		ResponseTime: -1,
+		Hostname:     hostname,
+		TimeUpdate:   time.Now().Unix(),
 	}
 
 	upstream.FSM = fsm.NewFSM(
@@ -99,7 +101,7 @@ func NewUpstream(host string, port string, weight int, token string, hostname st
 }
 
 func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) {
-
+	startTime := time.Now()
 	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
 	conn, err := ethclient.Dial(addr)
 	if err != nil {
@@ -115,6 +117,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 		}
 		u.Mutex.Lock()
 		u.LastBlock = 0
+		u.ResponseTime = int64(time.Since(startTime) / time.Millisecond)
 		u.HexLastBlock = lib.I2H(0)
 		u.RealState = u.FSM.Current()
 		u.Mutex.Unlock()

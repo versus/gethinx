@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"sync/atomic"
 
@@ -15,6 +16,9 @@ import (
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 type WSStatusResponse struct {
@@ -26,7 +30,7 @@ type WSStatusResponse struct {
 func webSocketAdmin(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println("Failed to set websocket upgrade: %+v", err)
+		fmt.Println("Failed to set websocket upgrade: ", err)
 		return
 	}
 	answerStruct := &WSStatusResponse{

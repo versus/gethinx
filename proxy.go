@@ -65,7 +65,7 @@ func reverseProxy(c *gin.Context) {
 		}
 
 	}
-	url, err = scheduler.GetTargetNode(backends, block, &LastBlock)
+	url, err = scheduler.GetTargetNode(backends, block, &LastBlock, conf.MaxResponseTime)
 	if err != nil {
 		log.Println("Error get URL for ReverseProxy  ", err.Error())
 		c.Writer.WriteHeader(http.StatusBadGateway)

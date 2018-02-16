@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBlock) (*url.URL, error) {
+func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBlock, maxresponsetime int64) (*url.URL, error) {
 
 	//TODO: учитывать количество коннектов на бекенд
 	//TODO: если количество коннектов исчерпано перейти на сервера бэкапа
@@ -24,11 +24,13 @@ func GetTargetNode(backends map[string]Upstream, block int64, lastblock *EthBloc
 
 	for key, srv := range backends {
 		if srv.FSM.Current() == "active" {
-			if srv.LastBlock >= block {
-				roulete = append(roulete, key)
-				if srv.Weight > 1 {
-					for i := 0; i < int(srv.Weight-1); i++ {
-						roulete = append(roulete, key)
+			if srv.ResponseTime < int64(time.Duration(maxresponsetime)*time.Millisecond) {
+				if srv.LastBlock >= block {
+					roulete = append(roulete, key)
+					if srv.Weight > 1 {
+						for i := 0; i < int(srv.Weight-1); i++ {
+							roulete = append(roulete, key)
+						}
 					}
 				}
 			}

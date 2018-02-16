@@ -109,15 +109,18 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 	}
 
 	header, err := conn.HeaderByNumber(ctx, nil)
+	u.Mutex.Lock()
+	u.ResponseTime = int64(time.Since(startTime) / time.Millisecond)
+	u.Mutex.Unlock()
+	log.Println("response time for ", u.Host, " is ", u.ResponseTime)
+
 	if err != nil {
 		log.Println("Failed get HeaderByNumber: %v", err)
-		u.LastBlock = 0
 		if u.FSM.Current() == "up" {
 			u.FSM.Event("suspend")
 		}
 		u.Mutex.Lock()
 		u.LastBlock = 0
-		u.ResponseTime = int64(time.Since(startTime) / time.Millisecond)
 		u.HexLastBlock = lib.I2H(0)
 		u.RealState = u.FSM.Current()
 		u.Mutex.Unlock()

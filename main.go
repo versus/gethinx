@@ -88,7 +88,7 @@ func main() {
 		log.Fatalln("Error bind or admin port in config file")
 	}
 
-	wsAdmin := fmt.Sprintf("ws://%s/ws", addrAdmin)
+	//log.Println("ws is ", conf.WebSocket)
 
 	initBackendServers()
 	GenerateLastBlockAverage()
@@ -101,7 +101,7 @@ func main() {
 	ar.GET("/status", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "status.tmpl", gin.H{
 			"title":     "Gethinx status page",
-			"ws_server": wsAdmin,
+			"ws_server": conf.WebSocket,
 		})
 	})
 	ar.GET("/ws", webSocketAdmin)

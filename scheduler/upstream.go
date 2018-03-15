@@ -112,7 +112,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 	u.Mutex.Lock()
 	u.ResponseTime = int64(time.Since(startTime) / time.Millisecond)
 	u.Mutex.Unlock()
-	log.Println("response time for ", u.Host, " is ", u.ResponseTime)
+	//log.Println("response time for ", u.Host, " is ", u.ResponseTime)
 
 	if err != nil {
 		log.Println("Failed get HeaderByNumber: %v", err)

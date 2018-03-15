@@ -45,7 +45,7 @@ func AgentTickerUpstream() {
 					lastTimeUpdate := time.Unix(srv.TimeUpdate, 0)
 					now := time.Now()
 					diff := now.Sub(lastTimeUpdate)
-					log.Println(srv.Target, "time sub is ", int64(diff/1000000000), "suspend time is ", int64(conf.Suspend))
+					//log.Println(srv.Target, "time sub is ", int64(diff/1000000000), "suspend time is ", int64(conf.Suspend))
 					if int64(diff/1000000000) > int64(conf.Suspend) {
 						srv.Mutex.Lock()
 						srv.FSM.Event("suspend")
@@ -65,7 +65,7 @@ func checkAlive() {
 	defer cancel()
 	for key, srv := range backends {
 		srv.GetTargetLastBlock(ctx, &LastBlock)
-		log.Println("checkAlive: ", srv.Target, " is ", srv.FSM.Current())
+		//log.Println("checkAlive: ", srv.Target, " is ", srv.FSM.Current())
 		backends[key] = srv
 	}
 	GenerateLastBlockAverage()

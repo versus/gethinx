@@ -9,8 +9,6 @@ import (
 
 	"net/http"
 
-	"reflect"
-
 	"github.com/gin-gonic/gin"
 	"github.com/versus/gethinx/lib"
 	"github.com/versus/gethinx/scheduler"
@@ -55,12 +53,10 @@ func reverseProxy(c *gin.Context) {
 		if err != nil {
 			log.Println("Error get Params ", err.Error())
 		}
-		if !reflect.ValueOf(hexblock).IsNil() {
-			if hexblock != "latest" {
-				block, err = lib.H2I(hexblock)
-				if err != nil {
-					log.Println("Error unhex block number ", err.Error())
-				}
+		if hexblock != "latest" {
+			block, err = lib.H2I(hexblock)
+			if err != nil {
+				log.Println("Error unhex block number ", err.Error())
 			}
 		}
 

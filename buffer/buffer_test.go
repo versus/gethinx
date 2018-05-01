@@ -1,4 +1,4 @@
-package lib
+package buffer
 
 import (
 	"io"
@@ -6,13 +6,6 @@ import (
 	"os"
 	"testing"
 )
-
-func TestTrimQuote(t *testing.T) {
-	str := TrimQuote("\"test\"")
-	if str != "test" {
-		t.Error("Error TestTrimQuote ", str)
-	}
-}
 
 type eReader struct {
 	r io.Reader

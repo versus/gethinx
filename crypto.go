@@ -1,12 +1,22 @@
-package lib
+package gethinx
 
 import (
-	"crypto/aes"
-	"crypto/cipher"
 	"crypto/rand"
-	"errors"
-	"io"
+	"encoding/hex"
 )
+
+// Key return random string
+func Key(key int) string {
+	buf := make([]byte, key)
+	_, err := rand.Read(buf)
+	if err != nil {
+		panic(err) // out of randomness, should never happen
+	}
+
+	return hex.EncodeToString(buf)
+	// or hex.EncodeToString(buf)
+	// or base64.StdEncoding.EncodeToString(buf)
+}
 
 /*
 func main() {
@@ -27,7 +37,7 @@ func main() {
 	}
 	fmt.Printf("%x => %s\n", ciphertext, plaintext)
 }
-*/
+
 
 func Encrypt(plaintext []byte, key []byte) ([]byte, error) {
 	c, err := aes.NewCipher(key)
@@ -67,3 +77,6 @@ func Decrypt(ciphertext []byte, key []byte) ([]byte, error) {
 	nonce, ciphertext := ciphertext[:nonceSize], ciphertext[nonceSize:]
 	return gcm.Open(nil, nonce, ciphertext, nil)
 }
+
+
+*/

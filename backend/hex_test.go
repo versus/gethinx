@@ -1,4 +1,4 @@
-package lib
+package backend
 
 import (
 	"log"
@@ -20,13 +20,4 @@ func TestI2H(t *testing.T) {
 	if hex != "0xe6" {
 		t.Error("Error I2H")
 	}
-}
-
-func TestKey(t *testing.T) {
-	rnd := Key()
-	log.Println("key = ", rnd)
-	if len(rnd) != 32 {
-		t.Error("Error len rnd", len(rnd))
-	}
-
 }

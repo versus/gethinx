@@ -1,4 +1,4 @@
-package main
+package gethinx
 
 import (
 	"log"
@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 )
+
+var configFile string
 
 //https://gist.github.com/hakobe/6f70d69b8c5243117787fd488ae7fbf2
 func RequestSocketServer(c net.Conn) {
@@ -20,7 +22,8 @@ func RequestSocketServer(c net.Conn) {
 		data := buf[0:nr]
 		log.Println("Server got:", string(data))
 		if string(data) == "reload" {
-			ReloadBackendServers(flagConfigFile)
+			//TODO: придумать как обновить глобальный слайс бэкендов
+			//ReloadBackendServers(configFile)
 			data = []byte("server was reloaded")
 		}
 		_, err = c.Write(data)
@@ -30,12 +33,13 @@ func RequestSocketServer(c net.Conn) {
 	}
 }
 
-func StartSocketServer() {
+func StartSocketServer(socketPath string, flagConfigFile string) {
 
-	syscall.Unlink(conf.SocketPath)
-	ln, err := net.Listen("unix", conf.SocketPath)
+	syscall.Unlink(socketPath)
+	configFile = flagConfigFile
+	ln, err := net.Listen("unix", socketPath)
 	if err != nil {
-		log.Fatal("Listen error: ", conf.SocketPath, err.Error())
+		log.Fatal("Listen error: ", socketPath, err.Error())
 	}
 
 	sigc := make(chan os.Signal, 1)

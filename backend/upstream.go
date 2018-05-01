@@ -1,4 +1,4 @@
-package scheduler
+package backend
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/looplab/fsm"
-	"github.com/versus/gethinx/lib"
+	"github.com/versus/gethinx/ethblock"
 )
 
 // Upstream is host for reverseproxy request from ethclients
@@ -100,7 +100,7 @@ func NewUpstream(host string, port string, weight int, token string, hostname st
 	return upstream
 }
 
-func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) {
+func (u *Upstream) TargetLastBlock(ctx context.Context, LastBlock *ethblock.EthBlock) {
 	startTime := time.Now()
 	addr := fmt.Sprintf("http://%s:%d", u.Host, u.Port)
 	conn, err := ethclient.Dial(addr)
@@ -121,7 +121,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 		}
 		u.Mutex.Lock()
 		u.LastBlock = 0
-		u.HexLastBlock = lib.I2H(0)
+		u.HexLastBlock = I2H(0)
 		u.RealState = u.FSM.Current()
 		u.Mutex.Unlock()
 		return
@@ -132,7 +132,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 	if bint.IsInt64() {
 		u.Mutex.Lock()
 		u.LastBlock = bint.Int64()
-		u.HexLastBlock = lib.I2H(u.LastBlock)
+		u.HexLastBlock = I2H(u.LastBlock)
 		if u.LastBlock >= atomic.LoadInt64(&LastBlock.Dig) {
 			if u.FSM.Current() == "down" {
 				u.FSM.Event("up")
@@ -148,7 +148,7 @@ func (u *Upstream) GetTargetLastBlock(ctx context.Context, LastBlock *EthBlock) 
 		log.Println(u.Target, " is ", u.FSM.Current())
 	} else {
 		u.LastBlock = 0
-		u.HexLastBlock = lib.I2H(0)
+		u.HexLastBlock = I2H(0)
 		if u.FSM.Current() == "up" {
 			if err = u.FSM.Event("suspend"); err != nil {
 				log.Println("error change  state FSM to  Down: ", err.Error())
@@ -168,7 +168,7 @@ func (u *Upstream) enterState(event *fsm.Event) {
 func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 	var err error
 	u.Mutex.Lock()
-	u.LastBlock, err = lib.H2I(hexLastBlock)
+	u.LastBlock, err = H2I(hexLastBlock)
 	if err != nil {
 		log.Fatalln("Error convert block to int", err.Error())
 		return err
@@ -186,7 +186,7 @@ func (u *Upstream) UpdateLastBlock(hexLastBlock string) error {
 }
 
 // GetURL return url.URL from target filed shema://host:port
-func (u *Upstream) GetURL() (*url.URL, error) {
+func (u *Upstream) URL() (*url.URL, error) {
 	geturl, err := url.Parse(u.Target)
 	if err != nil {
 		log.Fatalln("Can't get url from ", u.Target, err.Error())

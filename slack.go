@@ -1,4 +1,4 @@
-package main
+package gethinx
 
 import (
 	"log"
@@ -7,8 +7,6 @@ import (
 	"fmt"
 
 	"strings"
-
-	"sync/atomic"
 
 	"github.com/nlopes/slack"
 )
@@ -30,8 +28,8 @@ func statusMsg(api *slack.Client, channel string) {
 
 }
 
-func StartSlackBot() {
-	api := slack.New(conf.Slack.Token)
+func StartSlackBot(token string) {
+	api := slack.New(token)
 	logger := log.New(os.Stdout, "slack-bot: ", log.Lshortfile|log.LstdFlags)
 	slack.SetLogger(logger)
 	api.SetDebug(false)
@@ -61,7 +59,8 @@ func StartSlackBot() {
 						statusMsg(api, ev.Msg.Channel)
 					}
 					if strings.Contains(message, "last") {
-						msg := fmt.Sprintf("@ %s last block is %d", user.Name, atomic.LoadInt64(&LastBlock.Dig))
+						//msg := fmt.Sprintf("@ %s last block is %d", user.Name, atomic.LoadInt64(&LastBlock.Dig))
+						msg := fmt.Sprintf("sdfkjakljf")
 						rtm.SendMessage(rtm.NewOutgoingMessage(msg, ev.Msg.Channel))
 					}
 				}

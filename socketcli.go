@@ -1,12 +1,11 @@
-package cli
+package gethinx
 
 import (
+	"github.com/versus/gethinx/config"
 	"io"
 	"log"
 	"net"
 	"time"
-
-	"github.com/versus/gethinx/scheduler"
 )
 
 func reader(r io.Reader) {
@@ -20,7 +19,7 @@ func reader(r io.Reader) {
 	}
 }
 
-func SocketCli(reload bool, config *scheduler.Config) {
+func SocketCli(reload bool, config *config.Config) {
 	c, err := net.Dial("unix", config.SocketPath)
 	if err != nil {
 		log.Fatal("Dial error", err)

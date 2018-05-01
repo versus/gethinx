@@ -1,4 +1,4 @@
-package main
+package gethinx
 
 import "github.com/gin-gonic/gin"
 

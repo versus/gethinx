@@ -1,10 +1,8 @@
-package main
+package gethinx
 
 import (
 	"fmt"
 	"net/http"
-
-	"sync/atomic"
 
 	"encoding/json"
 	"log"
@@ -27,7 +25,7 @@ type WSStatusResponse struct {
 	Upstream                   []string `json:"upstreams"`
 }
 
-func webSocketAdmin(c *gin.Context) {
+func WebSocketAdmin(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		fmt.Println("Failed to set websocket upgrade: ", err)
@@ -45,7 +43,7 @@ func webSocketAdmin(c *gin.Context) {
 			break
 		}
 		if string(msg) == "status" {
-			answerStruct.LastBlockAverage = atomic.LoadInt64(&LastBlock.Dig)
+			//answerStruct.LastBlockAverage = atomic.LoadInt64(&LastBlock.Dig)
 			answerStruct.Upstream = JsonBackends()
 			answer, err := json.Marshal(answerStruct)
 			if err != nil {

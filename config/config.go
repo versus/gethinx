@@ -1,4 +1,4 @@
-package scheduler
+package config
 
 // Config is struct for config.toml file
 type Config struct {

@@ -1,7 +1,6 @@
 package gethinx
 
 import (
-	"github.com/versus/gethinx/config"
 	"io"
 	"log"
 	"net"
@@ -19,7 +18,7 @@ func reader(r io.Reader) {
 	}
 }
 
-func SocketCli(reload bool, config *config.Config) {
+func SocketCli(reload bool, config *Config) {
 	c, err := net.Dial("unix", config.SocketPath)
 	if err != nil {
 		log.Fatal("Dial error", err)

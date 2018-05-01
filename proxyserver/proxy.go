@@ -9,9 +9,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx"
 	"github.com/versus/gethinx/backend"
 	"github.com/versus/gethinx/buffer"
-	"github.com/versus/gethinx/config"
 	"github.com/versus/gethinx/ethblock"
 	"math/rand"
 	"sync"
@@ -19,23 +19,24 @@ import (
 	"time"
 )
 
-type Reversproxy struct {
-	Backends backend.BackendList
-	Conf     config.Config
-	Mutex    sync.RWMutex
+type ReversProxy struct {
+	Backends  *backend.BackendList
+	Conf      gethinx.Config
+	LastBlock ethblock.EthBlock
+	Mutex     sync.RWMutex
 }
 
-var instance *Reversproxy
+var instance *ReversProxy
 var once sync.Once
 
-func GetInstance() *Reversproxy {
+func GetInstance() *ReversProxy {
 	once.Do(func() {
-		instance = &Reversproxy{}
+		instance = &ReversProxy{}
 	})
 	return instance
 }
 
-func ReverseProxy(c *gin.Context) {
+func ReverseProxyHandler(c *gin.Context) {
 
 	var req ethblock.JSONRPCMessage
 	//var block int64 = -1

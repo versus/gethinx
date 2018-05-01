@@ -12,7 +12,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/versus/gethinx"
 	"github.com/versus/gethinx/backend"
-	"github.com/versus/gethinx/config"
 	"github.com/versus/gethinx/monitoring"
 	"github.com/versus/gethinx/proxyserver"
 )
@@ -23,7 +22,7 @@ const (
 )
 
 var (
-	conf           config.Config
+	conf           gethinx.Config
 	backends       *backend.BackendList
 	flagConfigFile *string
 )
@@ -32,13 +31,13 @@ func init() {
 	prometheus.MustRegister(monitoring.PromResponse)
 	prometheus.MustRegister(monitoring.PromRequest)
 	prometheus.MustRegister(monitoring.PromLastBlock)
+
 }
 
 func main() {
 
 	var (
-		addr      string
-		addrAdmin string
+		addr, addrAdmin string
 	)
 
 	flagConfigFile = flag.String("c", "./config.toml", "config: path to config file")
@@ -68,18 +67,29 @@ func main() {
 		log.Fatalln("Error bind or port in config file")
 	}
 
-	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.Port) {
+	if govalidator.IsHost(conf.Bind) && govalidator.IsPort(conf.AdminPort) {
 		addrAdmin = fmt.Sprintf("%s:%s", conf.Bind, conf.AdminPort)
 	} else {
 		log.Fatalln("Error bind or admin port in config file")
 	}
+	proxy := proxyserver.GetInstance()
+	proxy.Mutex.Lock()
+	proxy.Conf = conf
+	proxy.Backends = backend.NewBackendServers(len(conf.Servers))
+	proxy.Mutex.Unlock()
 
-	go gethinx.StartSocketServer(*flagConfigFile, conf.SocketPath)
+	go gethinx.StartSocketServer(conf.SocketPath)
 
-	backends = backend.NewBackendServers(len(conf.Servers))
 	proxyserver.GenerateLastBlockAverage()
 
 	go AgentTickerUpstream()
 
 	StartApi(addr, addrAdmin)
+
+	if conf.Slack.Use {
+		go gethinx.StartSlackBot(conf.Slack.Token)
+	}
+	if conf.Telegram.Use {
+		go gethinx.StartTelegramBot(conf.Telegram.Token)
+	}
 }

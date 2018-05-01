@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
+	"github.com/versus/gethinx"
 	"github.com/versus/gethinx/buffer"
-	"github.com/versus/gethinx/config"
 	"github.com/versus/gethinx/ethblock"
 	"log"
 	"time"
@@ -24,7 +24,7 @@ func NewBackendServers(count int) *BackendList {
 
 }
 
-func (b BackendList) GeneratorBackend(conf config.Config) {
+func (b BackendList) GeneratorBackend(conf gethinx.Config) {
 	for _, srvValue := range conf.Servers {
 		b[srvValue.Token] = *NewUpstream(srvValue.IP, srvValue.Port, srvValue.Weight, srvValue.Token, srvValue.Hostname)
 		log.Println("add server  with ", b[srvValue.Token].Target)
@@ -37,8 +37,8 @@ func (b BackendList) GeneratorBackend(conf config.Config) {
 
 }
 
-func (b BackendList) ReloadBackendServers(configFile string) (config.Config, error) {
-	var conf config.Config
+func (b BackendList) ReloadBackendServers(configFile string) (gethinx.Config, error) {
+	var conf gethinx.Config
 	if _, err := toml.DecodeFile(configFile, &conf); err != nil {
 		return conf, err
 	}

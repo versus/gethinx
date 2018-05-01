@@ -33,10 +33,9 @@ func RequestSocketServer(c net.Conn) {
 	}
 }
 
-func StartSocketServer(socketPath string, flagConfigFile string) {
+func StartSocketServer(socketPath string) {
 
 	syscall.Unlink(socketPath)
-	configFile = flagConfigFile
 	ln, err := net.Listen("unix", socketPath)
 	if err != nil {
 		log.Fatal("Listen error: ", socketPath, err.Error())

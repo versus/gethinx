@@ -47,17 +47,13 @@ func StartApi(addr string, addrAdmin string) {
 	router.Use(middle.RequestLogger())
 	router.Use(middle.ResponseLogger)
 
+	router.Any("/", proxyserver.ReverseProxyHandler)
+
 	err := router.Run(addr)
 	if err != nil {
 		log.Println("Error run gin router: ", err.Error())
 	}
 
-	if conf.Slack.Use {
-		go gethinx.StartSlackBot(conf.Slack.Token)
-	}
-	if conf.Telegram.Use {
-		go gethinx.StartTelegramBot(conf.Telegram.Token)
-	}
 }
 
 func AgentTickerUpstream() {

@@ -1,4 +1,4 @@
-package config
+package gethinx
 
 // Config is struct for config.toml file
 type Config struct {
